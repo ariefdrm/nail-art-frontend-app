@@ -1,10 +1,11 @@
-import { Button } from '#/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({ component: Home })
 
 function Home() {
   const message: string = 'Hello, World'
+  // console.log(process.env.BACKEND_URL)
 
   return (
     <div className="p-8">
