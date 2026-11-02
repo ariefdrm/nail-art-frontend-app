@@ -1,8 +1,19 @@
-Welcome to your new TanStack Start app!
+# Nail Art Frontend Application
 
-# Getting Started
+Frontend application built with React, TanStack Start, TypeScript, and Tailwind CSS.
 
-To run this application:
+> [!IMPORTANT]
+> Contributor Guide: Before contributing to this project, please read the [![Git Workflow](https://img.shields.io/badge/Contribution-Git_Workflow-blue?logo=git)](./GIT_WORKFLOW.md) to understand our branching strategy, commit conventions, and pull request process.
+
+## Project Overview
+
+---
+
+## Running with docker-compose
+
+```bash
+docker compose -f compose.dev.yml up --build -d
+```
 
 ```bash
 bun install
@@ -21,17 +32,41 @@ bun --bun run build
 
 This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-### Removing Tailwind CSS
+## Project Structure
 
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
+```bash
+nail-art-frontend-app/
+├── bun.lock                   # Bun dependency lockfile
+├── components.json            # shadcn/ui configuration for component generation
+├── compose.dev.yml            # Docker Compose configuration for development
+├── Dockerfile                 # Docker image configuration for the frontend application
+├── eslint.config.js           # ESLint configuration for code quality and linting
+├── package.json               # Project metadata, dependencies, and scripts
+├── prettier.config.js         # Prettier configuration for code formatting
+├── README.md                  # Project documentation and setup instructions
+├── src/                       # Main application source code
+│   ├── components/            # Reusable React components
+│   │   └── ui/                # Reusable UI components (shadcn/ui)
+│   │       └── button.tsx     # Button component implementation
+│   ├── layouts/               # Shared application layouts
+│   │   └── app.layouts.tsx    # Main application layout
+│   ├── lib/                   # Shared libraries and utility functions
+│   │   └── utils.ts           # Utility functions (e.g., class name merging)
+│   ├── router.tsx             # TanStack Router configuration and router initialization
+│   ├── routes/                # File-based route definitions
+│   │   ├── __root.tsx         # Root route defining the application shell and global context
+│   │   └── index.tsx          # Index route (homepage)
+│   ├── routeTree.gen.ts       # Auto-generated route tree by TanStack Router
+│   ├── start.ts               # TanStack Start server entry configuration
+│   ├── styles.css             # Global CSS styles and Tailwind CSS configuration
+│   └── utils/                 # Application-specific utility modules
+│       └── axios.ts           # Axios instance and HTTP client configuration
+├── tsconfig.json              # TypeScript compiler configuration
+├── tsr.config.json            # TanStack Router configuration
+└── vite.config.ts             # Vite configuration for TanStack Start
+```
 
 ## Linting & Formatting
-
 
 This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
 
@@ -40,7 +75,6 @@ bun --bun run lint
 bun --bun run format
 bun --bun run check
 ```
-
 
 ## Deploy with Nitro
 
@@ -53,9 +87,7 @@ node dist/server/index.mjs
 
 The build output is a self-contained Node server. To deploy, push the `dist/` directory to your host (Render, Fly.io, your own VPS, etc.) and run the server command above.
 
-For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see https://v3.nitro.build/deploy.
-
-
+For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see <https://v3.nitro.build/deploy>.
 
 ## Routing
 
@@ -74,7 +106,7 @@ Now that you have two routes you can use a `Link` component to navigate between 
 To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
 
 ```tsx
-import { Link } from "@tanstack/react-router";
+import { Link } from '@tanstack/react-router'
 ```
 
 Then anywhere in your JSX you can use it like so:
@@ -142,11 +174,11 @@ const getServerTime = createServerFn({
 // Use in a component
 function MyComponent() {
   const [time, setTime] = useState('')
-  
+
   useEffect(() => {
     getServerTime().then(setTime)
   }, [])
-  
+
   return <div>Server time: {time}</div>
 }
 ```
@@ -198,8 +230,6 @@ function PeopleComponent() {
 ```
 
 Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
 
 # Learn More
 
