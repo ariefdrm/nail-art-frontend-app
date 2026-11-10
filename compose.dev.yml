@@ -1,3 +1,7 @@
+# Development stack for the frontend. Works with Docker and Podman:
+#   docker compose -f compose.dev.yml up --build -d
+#   podman compose -f compose.dev.yml up --build -d
+# Then open http://localhost:5173 (the backend must allow that origin in CORS_ORIGINS).
 name: frontend-nail-art-app
 
 services:
@@ -6,21 +10,29 @@ services:
       context: .
       dockerfile: Dockerfile
       target: development
-
     image: localhost/frontend-nail-art-app:dev
     container_name: frontend-nail-art-app
     working_dir: /app
+    init: true
 
     ports:
-      - '5173:3000'
+      - '5173:5173'
+
+    environment:
+      # The browser (not the container) calls the API, so this is a host address.
+      # Override with: VITE_API_BASE_URL=http://192.168.1.10:3000/api/v1 docker compose ...
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000/api/v1}
+      VITE_MAX_ADVANCE_DAYS: ${VITE_MAX_ADVANCE_DAYS:-60}
 
     volumes:
-      # Mount source code for live editing
-      - .:/app
+      # Live editing. ":z" lets SELinux hosts (Fedora, RHEL) share the folder; other systems ignore it.
+      - .:/app:z
+      # Dependencies stay in a volume: a host node_modules holds binaries built for the host OS
+      # (esbuild, lightningcss) that do not run on Alpine.
+      - node_modules:/app/node_modules
 
-      # Keep node_modules accessible on the host
-      - ./node_modules:/app/node_modules
+    # "bun install" is a quick no-op unless package.json changed since the image was built.
+    command: sh -c "bun install && bun --bun run dev --host 0.0.0.0"
 
-    command: sh -c "bun install && bun run dev --host 0.0.0.0"
-
-    init: true
+volumes:
+  node_modules:

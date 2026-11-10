@@ -53,7 +53,7 @@ bun --bun run typecheck    # tsc --noEmit (strict + noUncheckedIndexedAccess)
 bun --bun run verify       # check + lint + typecheck + build
 bun --bun run api:sync     # copy the contract from ../backend-nail-art-app into docs/openapi.yaml
 bun --bun run generate-routes   # tsr generate -> src/routeTree.gen.ts
-docker compose -f compose.dev.yml up --build -d   # dev container, host port 5173
+docker compose -f compose.dev.yml up --build -d   # dev container, host port 5173 (Docker; `podman compose` works too)
 ```
 
 Planned (added in module FE-0, then keep them working): `api:types` (generate `src/lib/api/schema.gen.ts` from `docs/openapi.yaml`), `test` (Vitest, then add it to `verify`), `test:e2e` (Playwright, optional). Run `verify` and the tests before declaring a module done. Run `format` after adding a shadcn component.

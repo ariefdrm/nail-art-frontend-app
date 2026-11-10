@@ -9,16 +9,33 @@ Frontend application built with React, TanStack Start, TypeScript, and Tailwind 
 
 ---
 
-## Running with docker-compose
+## Running in a container (development)
+
+Works with Docker and Podman; no Bun or Node needed on the host.
 
 ```bash
-docker compose -f compose.dev.yml up --build -d
+docker compose -f compose.dev.yml up --build -d   # Docker
+podman compose -f compose.dev.yml up --build -d   # Podman (needs podman-compose or docker-compose)
 ```
 
-```bash
-bun install
-bun --bun run dev
-```
+Open <http://localhost:5173>. Source is mounted into the container, so edits reload live.
+
+| Task                             | Command                                                                                               |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Logs                             | `docker compose -f compose.dev.yml logs -f web`                                                       |
+| Stop                             | `docker compose -f compose.dev.yml down`                                                              |
+| Run a command inside             | `docker compose -f compose.dev.yml exec web bun --bun run verify`                                     |
+| After changing `package.json`    | `docker compose -f compose.dev.yml up --build -d` (the container also runs `bun install` on start)    |
+| Reset dependencies               | `docker compose -f compose.dev.yml down -v` (removes the `node_modules` volume), then `up --build -d` |
+| Another API address (e.g. a LAN) | `VITE_API_BASE_URL=http://192.168.1.10:3000/api/v1 docker compose -f compose.dev.yml up -d`           |
+
+Notes:
+
+- The **browser** calls the API, so `VITE_API_BASE_URL` (default `http://localhost:3000/api/v1`) is an address reachable from your machine, not from inside the container.
+- The backend must list `http://localhost:5173` in `CORS_ORIGINS`, otherwise admin login answers `403 Origin tidak diizinkan`.
+- `node_modules` lives in a named volume on purpose: a host `node_modules` contains binaries built for your OS that do not run on Alpine. Install packages with `exec web bun add <pkg>` (or locally), not by mounting the host folder.
+- Rootless Podman keeps files in the project owned by you. With rootful Docker, files the container generates (`src/routeTree.gen.ts`, `.tanstack/`) are owned by root; run `sudo chown -R "$USER" .` if that gets in the way.
+- Without containers: `bun install && bun --bun run dev`.
 
 # Building For Production
 

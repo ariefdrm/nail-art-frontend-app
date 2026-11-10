@@ -1,6 +1,11 @@
 .git
 node_modules
 dist
+.output
+.nitro
+.tanstack
+coverage
+*.log
 .env
 .env.*
 !.env.example
