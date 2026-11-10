@@ -202,7 +202,7 @@ export default [
   },
   // The only code allowed to talk HTTP.
   {
-    files: ['src/lib/api/**/*.ts'],
+    files: ['src/lib/api/**/*.ts', 'src/test/**/*.ts'],
     rules: restrictImports(['features', 'components', 'routes', 'layouts'], true),
   },
   {

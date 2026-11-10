@@ -2,14 +2,14 @@
 
 This is the first thing to read in a new session before writing any code that calls the API. It explains the conventions, the auth flow, the error model, every endpoint and the business rules that shape the UI. For exact field names, types and limits, the source of truth is **[`openapi.yaml`](./openapi.yaml)** in this folder.
 
-|                   |                                                                                      |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| Backend           | `backend-nail-art-app` (Express 5, PostgreSQL), repo `ariefdrm/backend-nail-art-app` |
-| Contract version  | `1.0.0` (31 paths, 40 operations)                                                    |
-| Synced from       | backend `develop` @ `00afea9` (2026-11-09, merge of PR #28), copied on 2026-11-10    |
-| Base URL (dev)    | `http://localhost:3000/api/v1`                                                       |
-| Interactive docs  | `http://localhost:3000/docs` (backend running outside production)                    |
-| Refresh this copy | `bun --bun run api:sync` (see [`README.md`](./README.md))                            |
+|                   |                                                                                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Backend           | `backend-nail-art-app` (Express 5, PostgreSQL), repo `ariefdrm/backend-nail-art-app`                                                                                                                                     |
+| Contract version  | `1.0.0` (31 paths, 40 operations)                                                                                                                                                                                        |
+| Synced from       | backend branch `feature/auth-cookie` @ `5f7679f` (2026-11-10, **not yet merged into `develop`**), copied on 2026-11-11. Adds the HttpOnly refresh-token cookie; everything else is unchanged since `develop` @ `00afea9` |
+| Base URL (dev)    | `http://localhost:3000/api/v1`                                                                                                                                                                                           |
+| Interactive docs  | `http://localhost:3000/docs` (backend running outside production)                                                                                                                                                        |
+| Refresh this copy | `bun --bun run api:sync` (see [`README.md`](./README.md))                                                                                                                                                                |
 
 If this copy and a running backend disagree, the running backend and its `documents/openapi.yaml` win: re-sync, then tell the user what changed.
 
@@ -26,7 +26,8 @@ bun run db:seed                 # one artist "Owner", seven CLOSED days, and an 
 bun run dev                     # http://localhost:3000
 ```
 
-- **CORS:** the backend answers browsers only for origins listed in its `CORS_ORIGINS` (default `http://localhost:5173`). A request from another origin simply gets no CORS headers and the browser blocks it. Add the frontend origin there if you serve it from another port or host.
+- **CORS is credentialed** (the refresh token is a cookie). The backend answers browsers only for origins listed in its `CORS_ORIGINS` (default `http://localhost:5173`), replies with `Access-Control-Allow-Credentials: true`, and refuses `*` at startup. A request from another origin gets no CORS headers and the browser blocks it. Add the frontend origin there if you serve it from another port or host. `POST /auth/refresh` and `POST /auth/logout` also answer **`403`** when the request carries an `Origin` that is not in the list (CSRF guard).
+- **Cookie site rules:** the refresh cookie is `SameSite=Lax` by default (backend `AUTH_COOKIE_SAMESITE`), so the frontend and the API must be on the **same site**: `localhost:5173` and `localhost:3000` count as one site (ports are ignored), as do `app.example.com` and `api.example.com`, and so does one origin behind a reverse proxy. Only when they are on different sites must the backend use `AUTH_COOKIE_SAMESITE=none`, which forces `Secure` and therefore HTTPS. See section 4.4.
 - Health: `GET /health/live` and `GET /health/ready` (outside `/api/v1`; not needed by the UI).
 - **A fresh database is empty on purpose:** no services, and every weekday closed. `GET /availability` returns no slots until an admin creates a service and opens business hours. See section 9 for a bootstrap checklist.
 - Without a backend, mock the contract: `bunx @stoplight/prism-cli mock docs/openapi.yaml -p 4010` and point `VITE_API_BASE_URL` at `http://localhost:4010`.
@@ -50,18 +51,18 @@ bun run dev                     # http://localhost:3000
 
 Every failure has the shape `{ "error": { "code": "...", "message": "..." } }`. Messages are Indonesian and user-safe, but the UI should map `code` (and HTTP status) to its own copy (see the PRD, section 8). Never show raw JSON or a stack trace.
 
-| HTTP | `code`                      | When                                                                                | What the UI does                                                                 |
-| ---- | --------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| 401  | `UNAUTHORIZED`              | Missing, expired or invalid access token; wrong login                               | On `/admin/*`: refresh once, then retry; on login: "email atau kata sandi salah" |
-| 403  | `FORBIDDEN`                 | Signed in but the role is not allowed (CSV export is owner-only)                    | "Anda tidak memiliki akses"                                                      |
-| 404  | `NOT_FOUND`                 | Unknown id/code, inactive service or artist, or (public booking lookup) wrong phone | Context-specific; public lookup uses one generic message                         |
-| 409  | `SLOT_UNAVAILABLE`          | Slot taken, blocked, or not a valid slot (book/reschedule)                          | Refetch availability, ask for another time, keep the user's input                |
-| 409  | `INVALID_STATUS_TRANSITION` | Status change not allowed, cancel too late, double cancel                           | Show the message and reload the data                                             |
-| 409  | `BLOCK_HAS_BOOKINGS`        | Creating a blocked slot over active bookings without `acknowledge_conflicts`        | Show the `conflicts` list (section 7.5)                                          |
-| 413  | `VALIDATION_ERROR`          | Body larger than 100 kB                                                             | Generic "data too large"                                                         |
-| 422  | `VALIDATION_ERROR`          | Invalid input                                                                       | Show `details` on the matching fields                                            |
-| 429  | `RATE_LIMITED`              | Too many requests from this IP                                                      | Wait `Retry-After` seconds (section 5)                                           |
-| 500  | `INTERNAL_ERROR`            | Unexpected server error                                                             | Generic message + retry                                                          |
+| HTTP | `code`                      | When                                                                                                                                                         | What the UI does                                                                                                                                   |
+| ---- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 401  | `UNAUTHORIZED`              | Missing, expired or invalid access token; wrong login; **`/auth/refresh` with no, unknown, expired or already-used cookie**                                  | On `/admin/*`: refresh once, then retry; on login: "email atau kata sandi salah"; on refresh: the session is over, go to the login page            |
+| 403  | `FORBIDDEN`                 | Signed in but the role is not allowed (CSV export is owner-only); **or `/auth/refresh` / `/auth/logout` from an `Origin` not in the backend `CORS_ORIGINS`** | "Anda tidak memiliki akses"; for the Origin case it is a configuration error: do not retry or log the user out, show a clear message (section 4.4) |
+| 404  | `NOT_FOUND`                 | Unknown id/code, inactive service or artist, or (public booking lookup) wrong phone                                                                          | Context-specific; public lookup uses one generic message                                                                                           |
+| 409  | `SLOT_UNAVAILABLE`          | Slot taken, blocked, or not a valid slot (book/reschedule)                                                                                                   | Refetch availability, ask for another time, keep the user's input                                                                                  |
+| 409  | `INVALID_STATUS_TRANSITION` | Status change not allowed, cancel too late, double cancel                                                                                                    | Show the message and reload the data                                                                                                               |
+| 409  | `BLOCK_HAS_BOOKINGS`        | Creating a blocked slot over active bookings without `acknowledge_conflicts`                                                                                 | Show the `conflicts` list (section 7.5)                                                                                                            |
+| 413  | `VALIDATION_ERROR`          | Body larger than 100 kB                                                                                                                                      | Generic "data too large"                                                                                                                           |
+| 422  | `VALIDATION_ERROR`          | Invalid input                                                                                                                                                | Show `details` on the matching fields                                                                                                              |
+| 429  | `RATE_LIMITED`              | Too many requests from this IP                                                                                                                               | Wait `Retry-After` seconds (section 5)                                                                                                             |
+| 500  | `INTERNAL_ERROR`            | Unexpected server error                                                                                                                                      | Generic message + retry                                                                                                                            |
 
 `details` is `[{ "field": "customer_phone", "message": "..." }]`. `field` is the body field name for body errors, prefixed `query.` for query-string errors (`query.date_from`) and `params.` for path errors. `conflicts` appears only on `BLOCK_HAS_BOOKINGS`.
 
@@ -69,39 +70,66 @@ Every failure has the shape `{ "error": { "code": "...", "message": "..." } }`. 
 
 **Customers have no accounts.** All public endpoints work without a token. A customer proves ownership of a booking with its `booking_code` **plus the phone number**; a mismatch is `404` (never `403`), so the UI must show one generic "not found" message.
 
-**Admins** (`owner` or `staff`) sign in with email and password.
+**Admins** (`owner` or `staff`) sign in with email and password. The **access token** is a short-lived string the frontend keeps **in memory**. The **refresh token** is an **`HttpOnly` cookie** set by the backend; JavaScript can neither read nor write it, and the frontend does not store it anywhere.
+
+### 4.1 Endpoints
 
 ```
-POST /auth/login    { email, password }          -> 200 { data: { access_token, refresh_token, token_type: "Bearer", expires_in: 900 } }
-POST /auth/refresh  { refresh_token }            -> 200 { data: { ...new TokenPair } }
-POST /auth/logout   { refresh_token }            -> 204   (no access token needed; idempotent)
-POST /auth/logout-all   (Bearer)                 -> 204   (ends every session of this admin)
-GET  /auth/me           (Bearer)                 -> 200 { data: { id, name, email, role } }
+POST /auth/login       { email, password }   -> 200 { data: { access_token, refresh_token, token_type: "Bearer", expires_in: 900 } }
+                                                  + Set-Cookie: refresh_token=...; HttpOnly; Path=/api/v1/auth; SameSite=Lax|Strict|None; Max-Age=<7 days>; (Secure)
+POST /auth/refresh     (no body)             -> 200 { data: { ...new TokenPair } } + a new Set-Cookie   | 401 | 403 (Origin) | 429
+POST /auth/logout      (no body)             -> 204 + cookie cleared   (idempotent; 403 if Origin not allowed)
+POST /auth/logout-all  (Bearer)              -> 204 + cookie cleared   (ends every session of this admin)
+GET  /auth/me          (Bearer)              -> 200 { data: { id, name, email, role } }
 ```
 
 Send `Authorization: Bearer <access_token>` on every `/admin/*` request and on `/auth/me`, `/auth/logout-all`.
 
-- The **access token lives 15 minutes** (`expires_in` is in seconds) and is stateless: logging out does not invalidate one that was already issued.
-- The **refresh token lives 7 days and is rotated on every use**: each successful `/auth/refresh` returns a new refresh token and the old one stops working.
-- **Reuse detection:** presenting a refresh token that was already used makes the backend **revoke every session of that admin**. So refreshing must be strictly one-at-a-time, across requests _and_ across browser tabs, and the new refresh token must be saved _before_ the failed request is retried.
-- Login failures are rate limited (section 5); the same `401` is returned for an unknown email and a wrong password.
+### 4.2 Rules the frontend follows
 
-A correct refresh routine, as a sketch (the real one belongs in `src/lib/auth/`):
+1. **Access token in memory only** (a module variable). Never in `localStorage`, `sessionStorage`, IndexedDB, a cookie you set, or the URL. It is gone on reload, and that is fine: see "session bootstrap" below.
+2. **Never keep the refresh token.** The backend still returns `refresh_token` in the JSON body of login and refresh, for clients that manage it themselves. **This app does not:** drop that field when you parse the response (do not put it in state, a store, or a log). Keeping it in any JS-readable place cancels the protection the `HttpOnly` cookie gives against XSS.
+3. **Send credentials on the four auth calls only.** Use `withCredentials: true` (axios) or `credentials: 'include'` (fetch) on `/auth/login`, `/auth/refresh`, `/auth/logout` and `/auth/logout-all`, so the browser accepts and returns the cookie. The cookie has `Path=/api/v1/auth`, so the browser sends it only to those routes; `/admin/*` and public calls authenticate with the Bearer header and need no credentials.
+4. **Call refresh and logout without a body token.** When both are present, the body token is used instead of the cookie, which would defeat the point. Send no body (or `{}`).
+5. **Session bootstrap.** The frontend cannot see the cookie, so "am I signed in?" is answered by calling `POST /auth/refresh` when an admin page is entered for the first time in a tab: `200` -> keep the new access token in memory, then `GET /auth/me`; `401` -> not signed in, go to the login page (an expected outcome, not an error to report). Every page reload and every new tab goes through this once. The route guard (`admin/_app` `beforeLoad`) must wait for it. A non-secret hint such as `localStorage['np.session']='1'` may be used to skip the call for people who never signed in; it must never hold a credential.
+6. **Refresh on `401`.** On `401` from an admin request: refresh once, retry the request once with the new token; if the refresh itself fails, clear the session and show the login page ("Sesi berakhir, silakan masuk lagi."). Never loop.
+7. **Logout** = `POST /auth/logout` (credentials, empty body) -> the backend clears the cookie. Then drop the in-memory token, clear the query cache, and tell the other tabs (below). "Keluar dari semua perangkat" = `POST /auth/logout-all`.
+
+### 4.3 Token lifetime, rotation and the multi-tab problem
+
+- The access token lives **15 minutes** (`expires_in` is in seconds) and is stateless: logging out does not invalidate one that was already issued.
+- The refresh token lives **7 days** and is **rotated on every use**: each successful `/auth/refresh` returns a new token (and sets a new cookie); the old one stops working.
+- **Reuse detection:** presenting a refresh token that was already used makes the backend **revoke every session of that admin**. All tabs of one browser share **one** cookie, so two tabs refreshing at nearly the same moment would send the same cookie twice, and the second request would be treated as theft.
+
+So refreshing must be strictly one-at-a-time, **across requests and across tabs**. An `HttpOnly` cookie cannot be inspected from JavaScript, so a tab cannot check whether another tab has already rotated it; tabs coordinate by **sharing the new access token** instead:
+
+- `navigator.locks` (Web Locks) serializes refreshes across tabs of the origin.
+- `BroadcastChannel('np-auth')` (same-origin, in-memory, nothing persisted) carries `{ type: 'token', access_token, expires_at }` after every login or refresh, `{ type: 'need-token' }` as a request, and `{ type: 'logout' }` so every tab signs out together.
+- Inside the lock a tab first checks its own memory (a broadcast may have arrived while it waited), then asks the other tabs for a fresh token (short timeout), and only then calls `/auth/refresh`.
+
+A correct routine, as a sketch (the real one belongs in `src/lib/auth/`; names such as `getAccessToken` are placeholders):
 
 ```ts
-let inFlight: Promise<string> | null = null // shared by all callers in this tab
+const channel = new BroadcastChannel('np-auth')
+let inFlight: Promise<string> | null = null // one refresh at a time inside this tab
 
 export function refreshAccessToken(): Promise<string> {
-  inFlight ??= navigator.locks // serialize across tabs
+  inFlight ??= navigator.locks // one refresh at a time across tabs
     .request('np-refresh', async () => {
-      const stored = localStorage.getItem('np.refresh')
-      if (!stored) throw new SessionExpiredError()
-      // Another tab may have refreshed while we waited for the lock: use its token.
-      if (memoryAccessTokenIsFresh()) return getAccessToken()
-      const { data } = await rawAxios.post('/auth/refresh', { refresh_token: stored })
-      localStorage.setItem('np.refresh', data.data.refresh_token) // save BEFORE anything is retried
-      setAccessToken(data.data.access_token)
-      return data.data.access_token
+      // 1. Another tab may have refreshed while we waited for the lock (or while this tab was loading).
+      const known = getFreshAccessToken() ?? (await askOtherTabsForToken({ timeoutMs: 300 }))
+      if (known) return known
+
+      // 2. Nobody has a fresh token: use the cookie. Empty body, credentials on.
+      const res = await rawAxios.post('/auth/refresh', undefined, { withCredentials: true })
+      const { access_token, expires_in } = res.data.data // `refresh_token` in the body is ignored on purpose
+      setAccessToken(access_token, expires_in)
+      channel.postMessage({
+        type: 'token',
+        access_token,
+        expires_at: Date.now() + expires_in * 1000,
+      })
+      return access_token
     })
     .finally(() => {
       inFlight = null
@@ -110,7 +138,25 @@ export function refreshAccessToken(): Promise<string> {
 }
 ```
 
-On `401` from an admin request: call `refreshAccessToken()` once, retry the request once with the new token, and if the refresh itself fails clear the session and go to the login page. Never loop.
+`rawAxios` is an axios instance without the refresh interceptor (so a failing refresh cannot trigger another refresh).
+
+### 4.4 Where the frontend and the API may live (cookie rules)
+
+| Setup                                                                                 | Works with                                                | Notes                                                                                                                                             |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local dev: `http://localhost:5173` -> `http://localhost:3000`                         | `AUTH_COOKIE_SAMESITE=lax` (default)                      | Same site (ports are ignored). `CORS_ORIGINS` must list `http://localhost:5173`. The cookie is not `Secure` in development, so plain `http` works |
+| Production, one origin behind the reverse proxy (`/` frontend, `/api` backend)        | `lax` or `strict`                                         | Simplest and safest: no cross-origin requests at all                                                                                              |
+| Production, `app.example.com` and `api.example.com`                                   | `lax`                                                     | Same registrable domain = same site. `Secure` is on in production, so HTTPS is required                                                           |
+| Frontend and API on **different sites** (e.g. `myapp.vercel.app` and `api.other.com`) | `AUTH_COOKIE_SAMESITE=none` (forces `Secure`, HTTPS only) | Browsers that block third-party cookies (Safari, Firefox strict mode, Chrome with the setting on) will refuse it. Avoid this setup                |
+
+Failure signs and what they mean:
+
+- `POST /auth/refresh` always `401` right after a successful login, or no `refresh_token` cookie in the browser's storage panel: the cookie was rejected. Check that the calls use credentials, that the backend `CORS_ORIGINS` lists the exact frontend origin (scheme, host, port; no trailing slash), and the site rule above.
+- A CORS error mentioning credentials or wildcard: the backend `CORS_ORIGINS` is wrong or the request lacks `withCredentials`.
+- `403 FORBIDDEN` ("Origin tidak diizinkan") on refresh or logout: the page's origin is not in `CORS_ORIGINS`. This is a **configuration error**, not an expired session: show a clear message, do not retry in a loop, and do not silently log the user out.
+- Works in one browser but not another, or only when not in a private window: third-party cookie blocking on a cross-site setup.
+
+Testing the flow without a browser: `curl -c jar.txt -b jar.txt -X POST "$BASE/auth/login" ...` stores the cookie, then `curl -c jar.txt -b jar.txt -X POST "$BASE/auth/refresh"` uses it (no body). Without an `Origin` header the CSRF guard does not apply, as with any non-browser client.
 
 ## 5. Rate limits
 
@@ -139,8 +185,8 @@ Generated from `openapi.yaml` (`auth`: `public` needs no token, `admin` needs a 
 | `GET`    | `/bookings/{booking_code}`          | public | Cek status reservasi (kode booking + nomor telepon)                          | 200      | 404, 422, 429      |
 | `PATCH`  | `/bookings/{booking_code}/cancel`   | public | Batalkan reservasi oleh customer                                             | 200      | 404, 409, 422, 429 |
 | `POST`   | `/auth/login`                       | public | Login admin                                                                  | 200      | 401, 422, 429      |
-| `POST`   | `/auth/refresh`                     | public | Perbarui access token                                                        | 200      | 401, 422, 429      |
-| `POST`   | `/auth/logout`                      | public | Logout (cabut refresh token)                                                 | 204      | 422                |
+| `POST`   | `/auth/refresh`                     | public | Perbarui access token                                                        | 200      | 401, 403, 422, 429 |
+| `POST`   | `/auth/logout`                      | public | Logout (cabut refresh token)                                                 | 204      | 403, 422           |
 | `POST`   | `/auth/logout-all`                  | admin  | Logout dari semua perangkat                                                  | 204      | 401                |
 | `GET`    | `/auth/me`                          | admin  | Profil admin yang sedang login                                               | 200      | 401                |
 | `GET`    | `/admin/bookings`                   | admin  | Daftar reservasi (untuk dashboard jadwal)                                    | 200      | 401, 422           |
@@ -172,7 +218,7 @@ Generated from `openapi.yaml` (`auth`: `public` needs no token, `admin` needs a 
 | `POST`   | `/admin/push-subscriptions`         | admin  | Daftarkan perangkat/browser untuk menerima notifikasi Web Push               | 200, 201 | 401, 404, 422      |
 | `DELETE` | `/admin/push-subscriptions`         | admin  | Berhenti berlangganan Web Push untuk perangkat ini                           | 204      | 401, 422           |
 
-Notes: paths are relative to the base URL; `{id}` is a UUID; `/admin/export/bookings.csv` returns `text/csv`, everything else JSON.
+Notes: `/auth/refresh` and `/auth/logout` take **no body** in this app (the cookie is used) and need credentials, see section 4; paths are relative to the base URL; `{id}` is a UUID; `/admin/export/bookings.csv` returns `text/csv`, everything else JSON.
 
 ## 7. Flows and examples
 
@@ -318,7 +364,7 @@ POST /admin/blocked-slots         { start_at, end_at, artist_id?, reason?, ackno
 
 After `bun run db:seed` the database has only one artist (`Owner`), seven closed days and the owner admin from `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD` (real services and hours are not seeded yet). To get a bookable day:
 
-1. `POST /auth/login` as the owner -> `access_token`.
+1. `POST /auth/login` as the owner -> `access_token` (and the refresh cookie; with curl add `-c jar.txt`).
 2. `POST /admin/services` `{ "name": "Gel Polish", "category": "gel_polish", "price": 150000, "duration_minutes": 90 }`.
 3. `PUT /admin/business-hours` with 7 days (open at least one day, e.g. `09:00`-`17:00`, break `12:00`-`13:00`).
 4. `GET /availability?service_id=<id>&date=<an open day within 60 days>` now returns slots.
@@ -336,3 +382,4 @@ These are limits of the current backend, tracked in the PRD (section 14); do not
 - The booking status history exists in the database but has no endpoint.
 - The booking response has no "can still be cancelled" flag; the cancel rules surface as `409`.
 - Risk score for no-shows (FR-16) is not built.
+- The refresh token is returned in the JSON body as well as in the cookie. The frontend ignores the body copy on purpose (section 4.2); the backend does not offer a cookie-only mode.

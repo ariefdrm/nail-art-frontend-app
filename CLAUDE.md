@@ -64,7 +64,7 @@ Running against the backend: start it from `backend-nail-art-app` (`bun run dev`
 
 ## Environment
 
-Browser code can only read `import.meta.env.VITE_*`. The axios instance now lives in `src/lib/api/client.ts` and reads `import.meta.env.VITE_API_BASE_URL`, but `.env` still holds the scaffold placeholder `BACKEND_URL` and there is no `.env.example` yet; module FE-0 adds both and the typed env declarations:
+Browser code can only read `import.meta.env.VITE_*`. They are typed in `src/env.d.ts` and validated once in `src/lib/env.ts` (`ENV`); the axios instance in `src/lib/api/client.ts` uses `ENV.VITE_API_BASE_URL`. Copy `.env.example` to `.env`:
 
 | Variable                | Example                        | Meaning                                                                                                     |
 | ----------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
@@ -75,7 +75,7 @@ Browser code can only read `import.meta.env.VITE_*`. The axios instance now live
 
 ## Stack facts and gotchas
 
-- **SPA mode.** `src/start.ts` sets `defaultSsr: false`. Treat everything as client-rendered: `beforeLoad` and loaders run in the browser, `localStorage` is available, and there are no server functions unless the user asks for them.
+- **SPA mode.** `src/start.ts` sets `defaultSsr: false`. Treat everything as client-rendered: `beforeLoad` and loaders run in the browser, and there are no server functions unless the user asks for them. Authentication relies on this: the browser talks to the API directly and holds the refresh token as an `HttpOnly` cookie.
 - **shadcn is `base-nova` = Base UI.** Add components with `bunx --bun shadcn@latest add <name>`. Primitives come from `@base-ui/react`; its API differs from Radix (for example the `render` prop instead of `asChild`). Do not paste Radix-based snippets from the internet. After generating a component, run `bun --bun run format` (generated files use double quotes; this repo uses single quotes, no semicolons).
 - `components.json` points at a `tailwind.config.js` that does not exist (Tailwind 4 is CSS-first, config lives in `src/styles.css`). If the shadcn CLI complains, set that field to an empty string rather than creating a config file.
 - `cn` comes from the `cn` package (a `clsx` + `tailwind-merge` replacement), re-exported as `@/lib/utils`. Import `cn` from `@/lib/utils`.
@@ -106,7 +106,7 @@ src/
   components/ui/          # shadcn components (generated; change tokens, not structure)
   components/common/      # shared building blocks: page header, status badge, empty state, error state, money/date text
   lib/api/                # client.ts (axios instance; interceptors in FE-0), errors.ts, schema.gen.ts, types.ts
-  lib/auth/               # token store, single-flight refresh, session helpers
+  lib/auth/               # in-memory access token, cross-tab single-flight refresh (Web Locks + BroadcastChannel), session bootstrap
   lib/format.ts           # money, date, time, phone formatting (Asia/Jakarta, id-ID)
   styles.css              # the ONLY place for design tokens
 ```
@@ -139,7 +139,7 @@ The full style guide is **`CODE_STYLE.md`** (with patterns to copy). The rules b
 Full detail is in `docs/API_GUIDE.md`, `docs/openapi.yaml` and the PRD; these are the ones that cause bugs:
 
 - Responses are `{ data }` or `{ data, meta }` (pagination `{ page, per_page, total, total_pages }`). Errors are `{ error: { code, message, details? } }`; `details` is `[{ field, message }]` and `field` is the body field name (query errors are prefixed `query.`).
-- **Admin auth:** access token (15 min) goes in `Authorization: Bearer`. Refresh tokens are **rotated on every use**, and presenting an already-used one makes the backend revoke **all** of that admin's sessions. So refresh must be **single-flight** (one refresh at a time across requests and across browser tabs; use the Web Locks API and re-read the stored refresh token inside the lock) and the new refresh token must be stored before retrying. Never refresh in parallel.
+- **Admin auth uses an `HttpOnly` cookie, not browser storage.** The backend sets the refresh token as the cookie `refresh_token` (`Path=/api/v1/auth`) on login and refresh; JavaScript cannot read it. The access token (15 min) is kept **in memory only** and sent as `Authorization: Bearer`. Rules: (1) call `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/logout-all` with `withCredentials: true` and no other call; (2) call refresh and logout **with no body** (a `refresh_token` in the body would win over the cookie); (3) **ignore the `refresh_token` field the API still returns in the body**, never store it anywhere; (4) there is no readable token to check on load, so a page load or new tab signs in by calling `POST /auth/refresh` once (`200` = signed in, `401` = go to login); (5) refresh tokens are **rotated on every use** and reusing an old one makes the backend revoke **all** of that admin's sessions, and all tabs share one cookie, so refresh must be **single-flight across requests and tabs** (Web Locks to serialize, `BroadcastChannel` to share the new access token so a waiting tab does not refresh again with the rotated cookie). Never refresh in parallel. (6) `403` on refresh/logout means the frontend origin is not in the backend `CORS_ORIGINS` (a configuration error): show a clear message, do not loop and do not treat it as an expired session. Details, a code sketch and the cookie/site rules: `docs/API_GUIDE.md` section 4.
 - Customers have no accounts. Booking lookup and cancel use booking code + phone; any mismatch is `404` (never `403`), so show one generic "not found" message.
 - Slots come only from `GET /availability`; submitting a slot can still fail with `409 SLOT_UNAVAILABLE` (someone else took it or the owner blocked it): go back to slot selection and refetch. `artist_id` is optional and hidden by default; when omitted the system assigns an artist.
 - `429 RATE_LIMITED` carries `Retry-After` (seconds): show it and disable the action until it passes. Limits: login failures, booking creation, booking lookup/cancel, and a general ceiling.
@@ -157,7 +157,7 @@ Built in order on `test/ai-prototype`, **one module = one commit**. The user dec
 
 | #     | Scope                                                                                                            | Requirements | Status |
 | ----- | ---------------------------------------------------------------------------------------------------------------- | ------------ | ------ |
-| FE-0  | Foundation: dependencies, design tokens, API client and types, auth core, app shells, test setup, `.env.example` | FE-17        | todo   |
+| FE-0  | Foundation: dependencies, design tokens, API client and types, auth core, app shells, test setup, `.env.example` | FE-17        | done   |
 | FE-1  | Public landing and service catalog                                                                               | FE-01, FE-02 | todo   |
 | FE-2  | Booking wizard                                                                                                   | FE-03        | todo   |
 | FE-3  | Booking status lookup and customer cancel                                                                        | FE-04        | todo   |
@@ -181,8 +181,8 @@ Built in order on `test/ai-prototype`, **one module = one commit**. The user dec
 
 ## Do not
 
-- Do not add server-side rendering, server functions, a BFF or cookie sessions without asking; the auth design below assumes a direct SPA-to-API setup.
-- Do not store the access token anywhere persistent (memory only). The refresh token is the only persisted credential (`localStorage`, key `np.refresh`); this is a known trade-off for the prototype (see PRD, section 10).
+- Do not add server-side rendering, server functions or a BFF without asking; the auth design assumes the browser talks to the API directly and the backend owns the refresh cookie.
+- **Never persist a token in JavaScript-readable storage.** The access token lives in memory only. The refresh token is the backend's `HttpOnly` cookie and must never be copied from the response body into `localStorage`, `sessionStorage`, IndexedDB, state or logs; doing so throws away the XSS protection the cookie provides. The only thing allowed in `localStorage` for auth is a non-secret hint such as `np.session=1` (see `docs/API_GUIDE.md` section 4.2).
 - Do not add a UI library besides shadcn/Base UI and lucide, and no charting library for the dashboard unless the PRD asks.
 - Do not change the backend from this repo. If the contract has a gap, record it in the PRD open questions and tell the user.
 - Do not "fix" the monochrome palette by adding a color accent. If a state seems to need color, raise it as a design question.

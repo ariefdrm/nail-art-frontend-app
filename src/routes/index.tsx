@@ -1,20 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/common/page-header'
+import { CustomerLayout } from '@/layouts/customer-layout'
 
 export const Route = createFileRoute('/')({ component: Home, ssr: false })
 
 function Home() {
-  const message = 'Hello, World'
-
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold">Welcome to TanStack Start</h1>
-      <h2 className="text-2xl font-bold">{message}</h2>
-      <p className="mt-4 text-lg">
-        Edit <code>src/routes/index.tsx</code> to get started.
-      </p>
-      <Button variant="default">Hello</Button>
-    </div>
+    <CustomerLayout>
+      <PageHeader
+        title="The Nail Palace"
+        description="Studio nail art di Jambi. Halaman beranda lengkap hadir di modul berikutnya."
+      />
+    </CustomerLayout>
   )
 }

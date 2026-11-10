@@ -317,6 +317,8 @@ Name tests as behavior ("shows ... when ...", "rejects ..."). Arrange, act, asse
 - Show a message from the error-code table in the PRD, never raw server text or JSON.
 - Do not swallow errors silently. Either handle them visibly or let TanStack Query / the route error boundary show them.
 - `console.log` is an error. `console.warn` and `console.error` are allowed for genuinely unexpected conditions. Never log tokens, phone numbers or booking codes.
+- **Auth tokens are never persisted by the app.** The access token lives in memory; the refresh token is the backend's `HttpOnly` cookie. The login and refresh responses also carry `refresh_token` in the JSON body: parse it away, do not store, log or pass it on. Only the four `/auth/*` calls use `withCredentials: true`, and refresh/logout are sent with no body (`docs/API_GUIDE.md` section 4).
+- A `403` from `/auth/refresh` or `/auth/logout` is a configuration error (the page's origin is not in the backend's `CORS_ORIGINS`), not an expired session: show a clear message, never retry in a loop, never silently sign the user out.
 
 ## 10. Comments and documentation
 
@@ -357,6 +359,7 @@ Not enforced by tools, so review for it: the four UI states, copy quality and to
 - `export default` in `src/`; `React.FC`; class components; `index.ts` barrels.
 - `useEffect` that fetches, or that copies props into state; derived state stored in state.
 - axios or `fetch` called from a component or a route.
+- Storing any token (access, or the `refresh_token` from a response body) in `localStorage`, `sessionStorage`, IndexedDB, a store or a log; sending a `refresh_token` in the body of refresh or logout.
 - Hard-coded API base URL or magic strings for statuses and error codes scattered in components.
 - Inline styles; `style={{ color: ... }}`; palette Tailwind colors; `dark:`; shadows.
 - Ad hoc date or money formatting; reading the browser's timezone.
