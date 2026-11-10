@@ -1,3 +1,17 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+bun.lock
+
+node_modules
+dist
+.output
+.nitro
+.tanstack
+
+# Generated
+src/routeTree.gen.ts
+src/lib/api/schema.gen.ts
+
+# Copied verbatim from the backend (docs/README.md explains how to refresh it)
+docs/openapi.yaml

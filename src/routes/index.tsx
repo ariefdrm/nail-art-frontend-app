@@ -1,10 +1,11 @@
-import { Button } from '@/components/ui/button'
 import { createFileRoute } from '@tanstack/react-router'
+
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/')({ component: Home, ssr: false })
 
 function Home() {
-  const message: string = 'Hello, World'
+  const message = 'Hello, World'
 
   return (
     <div className="p-8">
