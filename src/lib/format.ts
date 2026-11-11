@@ -108,3 +108,16 @@ export function formatPhone(input: string): string {
   const national = e164.slice(3)
   return `+62 ${national.slice(0, 3)}-${national.slice(3, 7)}-${national.slice(7)}`
 }
+
+/** "1 j 30 mnt", "2 j", "45 mnt" */
+export function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return [hours > 0 ? `${hours} j` : '', rest > 0 ? `${rest} mnt` : ''].filter(Boolean).join(' ')
+}
+
+/** "gel_polish" -> "Gel polish" */
+export function formatCategory(category: string): string {
+  const text = category.replaceAll('_', ' ').trim()
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}

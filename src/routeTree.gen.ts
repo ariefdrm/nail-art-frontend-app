@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CekBookingRouteImport } from './routes/cek-booking'
+import { Route as LayananRouteImport } from './routes/layanan'
+import { Route as PesanRouteImport } from './routes/pesan'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CekBookingRoute = CekBookingRouteImport.update({
+  id: '/cek-booking',
+  path: '/cek-booking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayananRoute = LayananRouteImport.update({
+  id: '/layanan',
+  path: '/layanan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PesanRoute = PesanRouteImport.update({
+  id: '/pesan',
+  path: '/pesan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cek-booking': typeof CekBookingRoute
+  '/layanan': typeof LayananRoute
+  '/pesan': typeof PesanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cek-booking': typeof CekBookingRoute
+  '/layanan': typeof LayananRoute
+  '/pesan': typeof PesanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cek-booking': typeof CekBookingRoute
+  '/layanan': typeof LayananRoute
+  '/pesan': typeof PesanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/cek-booking' | '/layanan' | '/pesan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/cek-booking' | '/layanan' | '/pesan'
+  id: '__root__' | '/' | '/cek-booking' | '/layanan' | '/pesan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CekBookingRoute: typeof CekBookingRoute
+  LayananRoute: typeof LayananRoute
+  PesanRoute: typeof PesanRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cek-booking': {
+      id: '/cek-booking'
+      path: '/cek-booking'
+      fullPath: '/cek-booking'
+      preLoaderRoute: typeof CekBookingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layanan': {
+      id: '/layanan'
+      path: '/layanan'
+      fullPath: '/layanan'
+      preLoaderRoute: typeof LayananRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pesan': {
+      id: '/pesan'
+      path: '/pesan'
+      fullPath: '/pesan'
+      preLoaderRoute: typeof PesanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CekBookingRoute: CekBookingRoute,
+  LayananRoute: LayananRoute,
+  PesanRoute: PesanRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

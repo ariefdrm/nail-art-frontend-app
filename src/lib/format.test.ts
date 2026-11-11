@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
   addDaysWib,
+  formatCategory,
+  formatDuration,
   formatDate,
   formatPhone,
   formatRupiah,
@@ -43,5 +45,15 @@ describe('format', () => {
   it('shows the normalized number grouped', () => {
     expect(formatPhone('081234567890')).toBe('+62 812-3456-7890')
     expect(formatPhone('bukan nomor')).toBe('bukan nomor')
+  })
+
+  it('formats durations in Indonesian', () => {
+    expect(formatDuration(90)).toBe('1 j 30 mnt')
+    expect(formatDuration(120)).toBe('2 j')
+    expect(formatDuration(45)).toBe('45 mnt')
+  })
+
+  it('turns category slugs into labels', () => {
+    expect(formatCategory('gel_polish')).toBe('Gel polish')
   })
 })

@@ -158,7 +158,7 @@ Built in order on `test/ai-prototype`, **one module = one commit**. The user dec
 | #     | Scope                                                                                                            | Requirements | Status |
 | ----- | ---------------------------------------------------------------------------------------------------------------- | ------------ | ------ |
 | FE-0  | Foundation: dependencies, design tokens, API client and types, auth core, app shells, test setup, `.env.example` | FE-17        | done   |
-| FE-1  | Public landing and service catalog                                                                               | FE-01, FE-02 | todo   |
+| FE-1  | Public landing and service catalog                                                                               | FE-01, FE-02 | done   |
 | FE-2  | Booking wizard                                                                                                   | FE-03        | todo   |
 | FE-3  | Booking status lookup and customer cancel                                                                        | FE-04        | todo   |
 | FE-4  | Admin login, session, guard, shell                                                                               | FE-05        | todo   |

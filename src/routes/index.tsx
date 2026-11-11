@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PageHeader } from '@/components/common/page-header'
+import { FeaturedServices } from '@/features/catalog/components/featured-services'
+import { Hero } from '@/features/home/components/hero'
+import { HowToOrder } from '@/features/home/components/how-to-order'
 import { CustomerLayout } from '@/layouts/customer-layout'
 
 export const Route = createFileRoute('/')({ component: Home, ssr: false })
@@ -8,10 +10,9 @@ export const Route = createFileRoute('/')({ component: Home, ssr: false })
 function Home() {
   return (
     <CustomerLayout>
-      <PageHeader
-        title="The Nail Palace"
-        description="Studio nail art di Jambi. Halaman beranda lengkap hadir di modul berikutnya."
-      />
+      <Hero />
+      <FeaturedServices />
+      <HowToOrder />
     </CustomerLayout>
   )
 }
