@@ -12,7 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CekBookingRouteImport } from './routes/cek-booking'
 import { Route as LayananRouteImport } from './routes/layanan'
-import { Route as PesanRouteImport } from './routes/pesan'
+import { Route as PesanIndexRouteImport } from './routes/pesan.index'
+import { Route as PesanBerhasilRouteImport } from './routes/pesan.berhasil'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,9 +30,14 @@ const LayananRoute = LayananRouteImport.update({
   path: '/layanan',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PesanRoute = PesanRouteImport.update({
-  id: '/pesan',
-  path: '/pesan',
+const PesanIndexRoute = PesanIndexRouteImport.update({
+  id: '/pesan/',
+  path: '/pesan/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PesanBerhasilRoute = PesanBerhasilRouteImport.update({
+  id: '/pesan/berhasil',
+  path: '/pesan/berhasil',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -39,34 +45,44 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cek-booking': typeof CekBookingRoute
   '/layanan': typeof LayananRoute
-  '/pesan': typeof PesanRoute
+  '/pesan/berhasil': typeof PesanBerhasilRoute
+  '/pesan/': typeof PesanIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cek-booking': typeof CekBookingRoute
   '/layanan': typeof LayananRoute
-  '/pesan': typeof PesanRoute
+  '/pesan/berhasil': typeof PesanBerhasilRoute
+  '/pesan': typeof PesanIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cek-booking': typeof CekBookingRoute
   '/layanan': typeof LayananRoute
-  '/pesan': typeof PesanRoute
+  '/pesan/berhasil': typeof PesanBerhasilRoute
+  '/pesan/': typeof PesanIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cek-booking' | '/layanan' | '/pesan'
+  fullPaths: '/' | '/cek-booking' | '/layanan' | '/pesan/berhasil' | '/pesan/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cek-booking' | '/layanan' | '/pesan'
-  id: '__root__' | '/' | '/cek-booking' | '/layanan' | '/pesan'
+  to: '/' | '/cek-booking' | '/layanan' | '/pesan/berhasil' | '/pesan'
+  id:
+    | '__root__'
+    | '/'
+    | '/cek-booking'
+    | '/layanan'
+    | '/pesan/berhasil'
+    | '/pesan/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CekBookingRoute: typeof CekBookingRoute
   LayananRoute: typeof LayananRoute
-  PesanRoute: typeof PesanRoute
+  PesanBerhasilRoute: typeof PesanBerhasilRoute
+  PesanIndexRoute: typeof PesanIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -92,11 +108,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayananRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pesan': {
-      id: '/pesan'
+    '/pesan/': {
+      id: '/pesan/'
       path: '/pesan'
-      fullPath: '/pesan'
-      preLoaderRoute: typeof PesanRouteImport
+      fullPath: '/pesan/'
+      preLoaderRoute: typeof PesanIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pesan/berhasil': {
+      id: '/pesan/berhasil'
+      path: '/pesan/berhasil'
+      fullPath: '/pesan/berhasil'
+      preLoaderRoute: typeof PesanBerhasilRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -106,7 +129,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CekBookingRoute: CekBookingRoute,
   LayananRoute: LayananRoute,
-  PesanRoute: PesanRoute,
+  PesanBerhasilRoute: PesanBerhasilRoute,
+  PesanIndexRoute: PesanIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

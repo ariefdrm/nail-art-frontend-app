@@ -50,6 +50,20 @@ describe('toApiError', () => {
   })
 })
 
+describe('toApiError headers', () => {
+  it('reads Retry-After from AxiosHeaders as the real adapters return it', () => {
+    const response = {
+      status: 429,
+      statusText: '',
+      data: { error: { code: 'RATE_LIMITED', message: 'x' } },
+      headers: AxiosHeaders.from({ 'Retry-After': '30' }),
+      config: { headers: new AxiosHeaders() },
+    }
+    const error = new AxiosError('failed', 'ERR_BAD_REQUEST', undefined, undefined, response)
+    expect(toApiError(error).retryAfter).toBe(30)
+  })
+})
+
 describe('errorMessage', () => {
   it('distinguishes bad credentials from an expired session', () => {
     const error = axiosError(401, { error: { code: 'UNAUTHORIZED', message: 'x' } })

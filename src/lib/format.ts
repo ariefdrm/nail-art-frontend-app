@@ -121,3 +121,16 @@ export function formatCategory(category: string): string {
   const text = category.replaceAll('_', ' ').trim()
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
+
+/** "2026-11-10" -> a Date at local midnight, for calendar widgets that work in local days. */
+export function parseDay(day: string): Date {
+  const [year = 0, month = 1, date = 1] = day.split('-').map(Number)
+  return new Date(year, month - 1, date)
+}
+
+/** A calendar widget's local day -> "2026-11-10". Inverse of parseDay. */
+export function toDayKey(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${date.getFullYear()}-${month}-${day}`
+}

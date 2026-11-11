@@ -1,8 +1,9 @@
-import { isAxiosError } from 'axios'
+import { AxiosHeaders, isAxiosError } from 'axios'
 
 import { ERROR_COPY, rateLimitedMessage } from '@/lib/copy'
 
 import type { AffectedBooking, ApiErrorBody } from './types'
+import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 
 export type ApiErrorDetail = { field: string; message: string }
 
@@ -35,6 +36,12 @@ export class ApiError extends Error {
     this.retryAfter = init.retryAfter
     this.isNetwork = init.isNetwork ?? false
   }
+}
+
+/** Adapters return AxiosHeaders (fetch, xhr) or a plain object (tests, other adapters). */
+function readHeader(headers: unknown, name: string): unknown {
+  if (headers instanceof AxiosHeaders) return headers.get(name)
+  return typeof headers === 'object' && headers !== null ? Reflect.get(headers, name) : undefined
 }
 
 function parseRetryAfter(value: unknown): number | undefined {
@@ -71,7 +78,7 @@ export function toApiError(error: unknown): ApiError {
       ),
       // The contract marks every field optional; the backend always fills them.
       conflicts: body?.conflicts as AffectedBooking[] | undefined,
-      retryAfter: parseRetryAfter(headers['retry-after']),
+      retryAfter: parseRetryAfter(readHeader(headers, 'retry-after')),
     })
   }
 
@@ -103,18 +110,12 @@ export function errorMessage(error: unknown, context?: { login?: boolean }): str
   return ERROR_COPY.unknown
 }
 
-type SetError = (
-  name: string,
-  error: { type: string; message: string },
-  options?: { shouldFocus: boolean },
-) => void
-
 /**
  * Maps 422 details onto form fields. Fields the form does not know (or `query.`/`params.` ones)
  * become the form-level `root.server` error. Returns true when the error was a validation error.
  */
-export function applyApiErrors(
-  setError: SetError,
+export function applyApiErrors<T extends FieldValues>(
+  setError: UseFormSetError<T>,
   error: unknown,
   knownFields?: readonly string[],
 ): boolean {
@@ -130,7 +131,12 @@ export function applyApiErrors(
     const isKnown =
       !/^(query|params)\./.test(detail.field) && (knownFields?.includes(detail.field) ?? true)
     if (isKnown) {
-      setError(detail.field, { type: 'server', message: detail.message }, { shouldFocus: first })
+      // The API names fields at runtime; unknown ones were filtered out above.
+      setError(
+        detail.field as Path<T>,
+        { type: 'server', message: detail.message },
+        { shouldFocus: first },
+      )
       first = false
     } else {
       hasUnmapped = true

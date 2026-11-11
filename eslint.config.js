@@ -232,6 +232,8 @@ export default [
     files: ['src/components/ui/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-syntax': ['error', INNER_HTML],
+      // Label is a generic wrapper; the control is associated where it is used (FormField).
+      'jsx-a11y/label-has-associated-control': 'off',
     },
   },
 

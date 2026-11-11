@@ -10,6 +10,8 @@ import {
   formatTime,
   maxBookingDateWib,
   normalizePhone,
+  parseDay,
+  toDayKey,
   toWibDateString,
 } from './format'
 
@@ -55,5 +57,10 @@ describe('format', () => {
 
   it('turns category slugs into labels', () => {
     expect(formatCategory('gel_polish')).toBe('Gel polish')
+  })
+
+  it('round-trips calendar days', () => {
+    expect(toDayKey(parseDay('2026-11-09'))).toBe('2026-11-09')
+    expect(toDayKey(parseDay('2026-01-05'))).toBe('2026-01-05')
   })
 })
