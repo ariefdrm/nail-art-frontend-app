@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import { availabilityKeys } from '@/lib/api/public-queries'
+import { RESERVATIONS_KEY } from '@/lib/api/query-keys'
 
 import {
   changeStatus,
@@ -25,7 +26,7 @@ import type {
 } from './api'
 
 export const reservationKeys = {
-  all: ['reservations'] as const,
+  all: RESERVATIONS_KEY,
   list: (params: ListReservationsParams) => [...reservationKeys.all, 'list', params] as const,
   calendar: (params: CalendarParams) => [...reservationKeys.all, 'calendar', params] as const,
   detail: (id: string) => [...reservationKeys.all, 'detail', id] as const,

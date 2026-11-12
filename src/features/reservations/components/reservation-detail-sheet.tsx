@@ -20,9 +20,9 @@ import {
   useReservationQuery,
   useUpdateReservationMutation,
 } from '@/features/reservations/queries'
-import { isWhatsAppUrl } from '@/features/reservations/transitions'
 import { errorMessage, toApiError } from '@/lib/api/errors'
 import { formatDate, formatDateShort, formatPhone, formatRupiah, formatTime } from '@/lib/format'
+import { isWhatsAppUrl } from '@/lib/links'
 
 import { NotesForm } from './notes-form'
 import { ReschedulePanel } from './reschedule-panel'

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { toListParams, defaultRange, hasActiveFilters, isBlankSearch } from './search'
-import { availableTransitions, canReschedule, isWhatsAppUrl, requiresStarted } from './transitions'
+import { availableTransitions, canReschedule, requiresStarted } from './transitions'
 
 describe('availableTransitions', () => {
   it('offers only what the backend accepts', () => {
@@ -19,15 +19,6 @@ describe('availableTransitions', () => {
     expect(requiresStarted('no_show')).toBe(true)
     expect(requiresStarted('confirmed')).toBe(false)
     expect(requiresStarted('cancelled')).toBe(false)
-  })
-})
-
-describe('isWhatsAppUrl', () => {
-  it('accepts wa.me links only', () => {
-    expect(isWhatsAppUrl('https://wa.me/6281234567890?text=Halo')).toBe(true)
-    expect(isWhatsAppUrl('javascript:alert(1)')).toBe(false)
-    expect(isWhatsAppUrl('https://evil.test/wa.me/')).toBe(false)
-    expect(isWhatsAppUrl(null)).toBe(false)
   })
 })
 

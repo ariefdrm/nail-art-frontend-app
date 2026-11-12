@@ -18,6 +18,7 @@ import { Route as PesanIndexRouteImport } from './routes/pesan.index'
 import { Route as PesanBerhasilRouteImport } from './routes/pesan.berhasil'
 import { Route as AdminAppIndexRouteImport } from './routes/admin/_app/index'
 import { Route as AdminAppArtistRouteImport } from './routes/admin/_app/artist'
+import { Route as AdminAppJadwalRouteImport } from './routes/admin/_app/jadwal'
 import { Route as AdminAppLayananRouteImport } from './routes/admin/_app/layanan'
 import { Route as AdminAppPengaturanRouteImport } from './routes/admin/_app/pengaturan'
 import { Route as AdminAppReservasiRouteImport } from './routes/admin/_app/reservasi'
@@ -67,6 +68,11 @@ const AdminAppArtistRoute = AdminAppArtistRouteImport.update({
   path: '/artist',
   getParentRoute: () => AdminAppRoute,
 } as any)
+const AdminAppJadwalRoute = AdminAppJadwalRouteImport.update({
+  id: '/jadwal',
+  path: '/jadwal',
+  getParentRoute: () => AdminAppRoute,
+} as any)
 const AdminAppLayananRoute = AdminAppLayananRouteImport.update({
   id: '/layanan',
   path: '/layanan',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
   '/admin/artist': typeof AdminAppArtistRoute
+  '/admin/jadwal': typeof AdminAppJadwalRoute
   '/admin/layanan': typeof AdminAppLayananRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/reservasi': typeof AdminAppReservasiRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan': typeof PesanIndexRoute
   '/admin/artist': typeof AdminAppArtistRoute
+  '/admin/jadwal': typeof AdminAppJadwalRoute
   '/admin/layanan': typeof AdminAppLayananRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/reservasi': typeof AdminAppReservasiRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
   '/admin/_app/artist': typeof AdminAppArtistRoute
+  '/admin/_app/jadwal': typeof AdminAppJadwalRoute
   '/admin/_app/layanan': typeof AdminAppLayananRoute
   '/admin/_app/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/_app/reservasi': typeof AdminAppReservasiRoute
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan/'
     | '/admin/artist'
+    | '/admin/jadwal'
     | '/admin/layanan'
     | '/admin/pengaturan'
     | '/admin/reservasi'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan'
     | '/admin/artist'
+    | '/admin/jadwal'
     | '/admin/layanan'
     | '/admin/pengaturan'
     | '/admin/reservasi'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan/'
     | '/admin/_app/artist'
+    | '/admin/_app/jadwal'
     | '/admin/_app/layanan'
     | '/admin/_app/pengaturan'
     | '/admin/_app/reservasi'
@@ -244,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppArtistRouteImport
       parentRoute: typeof AdminAppRoute
     }
+    '/admin/_app/jadwal': {
+      id: '/admin/_app/jadwal'
+      path: '/jadwal'
+      fullPath: '/admin/jadwal'
+      preLoaderRoute: typeof AdminAppJadwalRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
     '/admin/_app/layanan': {
       id: '/admin/_app/layanan'
       path: '/layanan'
@@ -270,6 +289,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminAppRouteChildren {
   AdminAppArtistRoute: typeof AdminAppArtistRoute
+  AdminAppJadwalRoute: typeof AdminAppJadwalRoute
   AdminAppLayananRoute: typeof AdminAppLayananRoute
   AdminAppPengaturanRoute: typeof AdminAppPengaturanRoute
   AdminAppReservasiRoute: typeof AdminAppReservasiRoute
@@ -278,6 +298,7 @@ interface AdminAppRouteChildren {
 
 const AdminAppRouteChildren: AdminAppRouteChildren = {
   AdminAppArtistRoute: AdminAppArtistRoute,
+  AdminAppJadwalRoute: AdminAppJadwalRoute,
   AdminAppLayananRoute: AdminAppLayananRoute,
   AdminAppPengaturanRoute: AdminAppPengaturanRoute,
   AdminAppReservasiRoute: AdminAppReservasiRoute,
