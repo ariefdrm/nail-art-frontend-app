@@ -47,3 +47,20 @@ export async function updateReservation(
   const res = await api.patch<{ data: Booking }>(`/admin/bookings/${id}`, input)
   return res.data.data
 }
+
+const ALL_PAGE_SIZE = 100
+/** A safety stop for a runaway range; far above what one studio books in a month. */
+const ALL_MAX_PAGES = 10
+
+/** Every reservation in the range, following the pagination. For calendars, which need them all. */
+export async function listAllReservations(
+  params: Omit<ListReservationsParams, 'page' | 'per_page'>,
+): Promise<Booking[]> {
+  const bookings: Booking[] = []
+  for (let page = 1; page <= ALL_MAX_PAGES; page += 1) {
+    const result = await listReservations({ ...params, page, per_page: ALL_PAGE_SIZE })
+    bookings.push(...result.data)
+    if (page >= result.meta.total_pages) break
+  }
+  return bookings
+}

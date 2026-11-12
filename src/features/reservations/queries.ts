@@ -8,15 +8,24 @@ import {
 
 import { availabilityKeys } from '@/lib/api/public-queries'
 
-import { changeStatus, getReservation, listReservations, updateReservation } from './api'
+import {
+  changeStatus,
+  getReservation,
+  listAllReservations,
+  listReservations,
+  updateReservation,
+} from './api'
 
 import type { ChangeStatusInput, ListReservationsParams, UpdateReservationInput } from './api'
 
 export const reservationKeys = {
   all: ['reservations'] as const,
   list: (params: ListReservationsParams) => [...reservationKeys.all, 'list', params] as const,
+  calendar: (params: CalendarParams) => [...reservationKeys.all, 'calendar', params] as const,
   detail: (id: string) => [...reservationKeys.all, 'detail', id] as const,
 }
+
+export type CalendarParams = Omit<ListReservationsParams, 'page' | 'per_page'>
 
 export const reservationListOptions = (params: ListReservationsParams) =>
   queryOptions({
@@ -32,6 +41,18 @@ export const reservationDetailOptions = (id: string) =>
     queryFn: () => getReservation(id),
     staleTime: 15_000,
   })
+
+export const calendarOptions = (params: CalendarParams) =>
+  queryOptions({
+    queryKey: reservationKeys.calendar(params),
+    queryFn: () => listAllReservations(params),
+    placeholderData: keepPreviousData,
+    staleTime: 15_000,
+  })
+
+export function useCalendarQuery(params: CalendarParams) {
+  return useQuery(calendarOptions(params))
+}
 
 export function useReservationsQuery(params: ListReservationsParams) {
   return useQuery(reservationListOptions(params))

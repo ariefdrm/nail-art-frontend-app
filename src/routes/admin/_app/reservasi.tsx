@@ -2,10 +2,12 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { PageHeader } from '@/components/common/page-header'
+import { ReservationCalendar } from '@/features/reservations/components/reservation-calendar'
 import { ReservationDetailSheet } from '@/features/reservations/components/reservation-detail-sheet'
 import { ReservationFilters } from '@/features/reservations/components/reservation-filters'
 import { ReservationList } from '@/features/reservations/components/reservation-list'
-import { defaultRange, isBlankSearch } from '@/features/reservations/search'
+import { ViewTabs } from '@/features/reservations/components/view-tabs'
+import { defaultRange, isBlankSearch, isCalendar } from '@/features/reservations/search'
 import { useArtistsQuery } from '@/lib/api/public-queries'
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/
@@ -21,6 +23,9 @@ const searchSchema = z.object({
   sampai: z.string().regex(DAY).optional().catch(undefined),
   halaman: z.number().int().min(1).optional().catch(undefined),
   id: z.string().uuid().optional().catch(undefined),
+  tampilan: z.enum(['kalender']).optional().catch(undefined),
+  skala: z.enum(['minggu', 'bulan']).optional().catch(undefined),
+  tanggal: z.string().regex(DAY).optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/admin/_app/reservasi')({
@@ -43,13 +48,26 @@ function ReservationsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Reservasi" />
+      <PageHeader
+        title="Reservasi"
+        actions={<ViewTabs search={search} onChange={(next) => void navigate({ search: next })} />}
+      />
       <ReservationFilters
         search={search}
         artists={artists.data}
         onChange={(next) => void navigate({ search: next })}
       />
-      <ReservationList search={search} onSearchChange={(next) => void navigate({ search: next })} />
+      {isCalendar(search) ? (
+        <ReservationCalendar
+          search={search}
+          onSearchChange={(next) => void navigate({ search: next })}
+        />
+      ) : (
+        <ReservationList
+          search={search}
+          onSearchChange={(next) => void navigate({ search: next })}
+        />
+      )}
       <ReservationDetailSheet
         id={search.id}
         onClose={() => void navigate({ search: { ...search, id: undefined }, replace: true })}

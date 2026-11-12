@@ -146,4 +146,20 @@ describe('admin route guard', () => {
     expect(await screen.findByRole('heading', { name: 'Reservasi' })).toBeInTheDocument()
     expect(router.state.location.search).toEqual({ status: 'pending' })
   })
+
+  it('opens the calendar view straight from the URL without forcing a list range', async () => {
+    server.use(
+      refreshOk,
+      meOk,
+      http.get(`${API}/admin/bookings`, () =>
+        HttpResponse.json({ data: [], meta: { page: 1, per_page: 100, total: 0, total_pages: 0 } }),
+      ),
+      http.get(`${API}/artists`, () => HttpResponse.json({ data: [] })),
+    )
+    setSessionHint()
+    const router = await open('/admin/reservasi?tampilan=kalender')
+
+    expect(await screen.findByRole('button', { name: 'Minggu berikutnya' })).toBeInTheDocument()
+    expect(router.state.location.search).toEqual({ tampilan: 'kalender' })
+  })
 })

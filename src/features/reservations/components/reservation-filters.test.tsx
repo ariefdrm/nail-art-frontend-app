@@ -103,4 +103,27 @@ describe('ReservationFilters', () => {
     await user.click(screen.getByRole('button', { name: 'Hapus filter' }))
     expect(onChange).toHaveBeenLastCalledWith({ halaman: 1 })
   })
+
+  it('in the calendar, hides the date controls and keeps the view when clearing', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    await renderWithRouter(
+      <ReservationFilters
+        search={{ tampilan: 'kalender', skala: 'bulan', tanggal: '2026-11-12', status: 'pending' }}
+        artists={[]}
+        onChange={onChange}
+      />,
+    )
+
+    expect(screen.queryByLabelText('Dari tanggal')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Hari ini' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Hapus filter' }))
+    expect(onChange).toHaveBeenLastCalledWith({
+      tampilan: 'kalender',
+      skala: 'bulan',
+      tanggal: '2026-11-12',
+      halaman: 1,
+    })
+  })
 })

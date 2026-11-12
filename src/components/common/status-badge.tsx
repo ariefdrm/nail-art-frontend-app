@@ -20,6 +20,15 @@ const STATUS_STYLE: Record<BookingStatus, { icon: typeof Clock; className: strin
   },
 }
 
+/** The icon that stands for each status, for views that cannot fit the full badge. */
+export const STATUS_ICON: Record<BookingStatus, typeof Clock> = {
+  pending: STATUS_STYLE.pending.icon,
+  confirmed: STATUS_STYLE.confirmed.icon,
+  completed: STATUS_STYLE.completed.icon,
+  cancelled: STATUS_STYLE.cancelled.icon,
+  no_show: STATUS_STYLE.no_show.icon,
+}
+
 type StatusBadgeProps = { status: BookingStatus; className?: string }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

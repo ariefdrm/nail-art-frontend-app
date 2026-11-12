@@ -28,6 +28,31 @@ const dayShort = new Intl.DateTimeFormat(LOCALE, {
   day: 'numeric',
   month: 'short',
 })
+// Labels for plain YYYY-MM-DD days. They format a UTC-noon Date in UTC, so the printed day never
+// depends on the browser's timezone (a local-midnight Date would shift in zones east of WIB).
+const dayKeyLong = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: 'UTC',
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
+const dayKeyMonthYear = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: 'UTC',
+  month: 'long',
+  year: 'numeric',
+})
+const dayKeyWeekday = new Intl.DateTimeFormat(LOCALE, { timeZone: 'UTC', weekday: 'short' })
+const dayKeyDayMonthLong = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: 'UTC',
+  day: 'numeric',
+  month: 'long',
+})
+const dayKeyDayMonthShort = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: 'UTC',
+  day: 'numeric',
+  month: 'short',
+})
 const timeFormat = new Intl.DateTimeFormat(LOCALE, {
   timeZone: TIME_ZONE,
   hour: '2-digit',
@@ -149,4 +174,43 @@ export function formatDayShort(value: DateInput): string {
 /** True once the instant has passed (e.g. a booking's start). */
 export function hasStarted(value: DateInput): boolean {
   return toDate(value).getTime() <= Date.now()
+}
+
+function dayKeyNoon(day: string): Date {
+  const [year = 0, month = 1, date = 1] = day.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, date, 12))
+}
+
+/** "Selasa, 10 November 2026" for a YYYY-MM-DD day. */
+export function formatDayKey(day: string): string {
+  return dayKeyLong.format(dayKeyNoon(day))
+}
+
+/** "November 2026" */
+export function formatMonthYear(day: string): string {
+  return dayKeyMonthYear.format(dayKeyNoon(day))
+}
+
+/** "Sel" */
+export function formatWeekdayShort(day: string): string {
+  return dayKeyWeekday.format(dayKeyNoon(day))
+}
+
+/** "9 - 15 November 2026", "30 Nov - 6 Des 2026" or, across years, with both years. */
+export function formatDayRange(first: string, last: string): string {
+  const firstYear = first.slice(0, 4)
+  const lastYear = last.slice(0, 4)
+  if (firstYear !== lastYear) {
+    return `${dayKeyDayMonthShort.format(dayKeyNoon(first))} ${firstYear} - ${dayKeyDayMonthShort.format(dayKeyNoon(last))} ${lastYear}`
+  }
+  if (first.slice(0, 7) === last.slice(0, 7)) {
+    return `${Number(first.slice(8))} - ${dayKeyDayMonthLong.format(dayKeyNoon(last))} ${lastYear}`
+  }
+  return `${dayKeyDayMonthShort.format(dayKeyNoon(first))} - ${dayKeyDayMonthShort.format(dayKeyNoon(last))} ${lastYear}`
+}
+
+/** Minutes since midnight in WIB, for placing a booking on a time grid. */
+export function minutesOfDayWib(value: DateInput): number {
+  const [hours = 0, minutes = 0] = formatTime(value).split('.').map(Number)
+  return hours * 60 + minutes
 }

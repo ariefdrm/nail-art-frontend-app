@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { useArtistsQuery, useAvailabilityQuery } from '@/lib/api/public-queries'
 import {
-  formatDate,
+  formatDayKey,
   formatDuration,
   formatRupiah,
   maxBookingDateWib,
@@ -80,7 +80,7 @@ export function StepDatetime({
 
       <section aria-labelledby="slot-title" className="space-y-3" aria-live="polite">
         <h2 id="slot-title" className="text-sm font-medium">
-          {date ? `Jam tersedia, ${formatDate(parseDay(date))}` : 'Jam tersedia'}
+          {date ? `Jam tersedia, ${formatDayKey(date)}` : 'Jam tersedia'}
         </h2>
         {date ? (
           <SlotPicker

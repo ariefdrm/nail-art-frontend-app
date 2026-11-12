@@ -1,3 +1,4 @@
+import { endOfWeek, monthGrid, startOfWeek } from '@/lib/calendar-days'
 import { addDaysWib, todayWib } from '@/lib/format'
 
 import type { ListReservationsParams } from './api'
@@ -12,7 +13,14 @@ export type ReservationSearch = {
   sampai?: string | undefined
   halaman?: number | undefined
   id?: string | undefined
+  /** Absent means the list. */
+  tampilan?: 'kalender' | undefined
+  skala?: CalendarScale | undefined
+  /** Any day inside the week or month the calendar shows. Absent means today. */
+  tanggal?: string | undefined
 }
+
+export type CalendarScale = 'minggu' | 'bulan'
 
 export const PER_PAGE = 20
 export const DEFAULT_RANGE_DAYS = 7
@@ -25,8 +33,10 @@ export function defaultRange(): Pick<ReservationSearch, 'dari' | 'sampai'> {
 
 /** True when the URL carries no filter, page or selection at all. */
 export function isBlankSearch(search: ReservationSearch): boolean {
-  const { q, status, artist, dari, sampai, halaman, id } = search
-  return [q, status, artist, dari, sampai, halaman, id].every((value) => value === undefined)
+  const { q, status, artist, dari, sampai, halaman, id, tampilan, skala, tanggal } = search
+  return [q, status, artist, dari, sampai, halaman, id, tampilan, skala, tanggal].every(
+    (value) => value === undefined,
+  )
 }
 
 export function toListParams(search: ReservationSearch): ListReservationsParams {
@@ -42,7 +52,37 @@ export function toListParams(search: ReservationSearch): ListReservationsParams 
   }
 }
 
-/** Filters only; page and selected row do not count as "a filter is on". */
+export function isCalendar(search: ReservationSearch): boolean {
+  return search.tampilan === 'kalender'
+}
+
+/** The keys that choose how reservations are shown, as opposed to which ones. */
+export function viewKeys(search: ReservationSearch): ReservationSearch {
+  return { tampilan: search.tampilan, skala: search.skala, tanggal: search.tanggal }
+}
+
+/**
+ * Filters only; page, selected row and view do not count as "a filter is on". The calendar picks
+ * its own dates, so a date range only counts in the list.
+ */
 export function hasActiveFilters(search: ReservationSearch): boolean {
-  return [search.q, search.status, search.artist, search.dari, search.sampai].some(Boolean)
+  const base = [search.q, search.status, search.artist]
+  return (isCalendar(search) ? base : [...base, search.dari, search.sampai]).some(Boolean)
+}
+
+export function calendarScale(search: ReservationSearch): CalendarScale {
+  return search.skala ?? 'minggu'
+}
+
+export function calendarAnchor(search: ReservationSearch): string {
+  return search.tanggal ?? todayWib()
+}
+
+/** The days the calendar must load: the week, or the whole month grid with its spill-over days. */
+export function calendarRange(search: ReservationSearch): { from: string; to: string } {
+  const anchor = calendarAnchor(search)
+  if (calendarScale(search) === 'minggu')
+    return { from: startOfWeek(anchor), to: endOfWeek(anchor) }
+  const weeks = monthGrid(anchor)
+  return { from: weeks[0]?.[0] ?? anchor, to: weeks.at(-1)?.[6] ?? anchor }
 }

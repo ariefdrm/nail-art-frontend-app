@@ -3,7 +3,12 @@ import { useState } from 'react'
 import { NativeSelect } from '@/components/common/native-select'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { DEFAULT_RANGE_DAYS, hasActiveFilters } from '@/features/reservations/search'
+import {
+  DEFAULT_RANGE_DAYS,
+  hasActiveFilters,
+  isCalendar,
+  viewKeys,
+} from '@/features/reservations/search'
 import { STATUS_LABEL } from '@/lib/copy'
 import { addDaysWib, todayWib } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -28,6 +33,7 @@ export function ReservationFilters({ search, artists, onChange }: ReservationFil
   // Bumped when a button changes the query from outside, so the search box shows the new value.
   const [resetKey, setResetKey] = useState(0)
 
+  const showDates = !isCalendar(search)
   const today = todayWib()
   const tomorrow = addDaysWib(today, 1)
 
@@ -38,7 +44,8 @@ export function ReservationFilters({ search, artists, onChange }: ReservationFil
 
   function replaceAll(next: ReservationSearch) {
     setResetKey((key) => key + 1)
-    onChange({ ...next, halaman: 1 })
+    // A reset keeps how reservations are shown (list or calendar), only which ones changes.
+    onChange({ ...viewKeys(search), ...next, halaman: 1 })
   }
 
   const shortcuts = [
@@ -69,58 +76,69 @@ export function ReservationFilters({ search, artists, onChange }: ReservationFil
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Pintasan">
-        {shortcuts.map((shortcut) => (
-          <button
-            key={shortcut.label}
-            type="button"
-            aria-pressed={shortcut.isActive}
-            onClick={shortcut.apply}
-            className={cn(
-              CHIP,
-              shortcut.isActive
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-input bg-background hover:bg-muted',
-            )}
-          >
-            {shortcut.label}
-          </button>
-        ))}
-      </div>
+      {showDates ? (
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Pintasan">
+          {shortcuts.map((shortcut) => (
+            <button
+              key={shortcut.label}
+              type="button"
+              aria-pressed={shortcut.isActive}
+              onClick={shortcut.apply}
+              className={cn(
+                CHIP,
+                shortcut.isActive
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-input bg-background hover:bg-muted',
+              )}
+            >
+              {shortcut.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
+      <div
+        className={cn(
+          'grid gap-2 sm:grid-cols-2',
+          showDates ? 'lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]' : 'lg:grid-cols-[2fr_1fr_1fr]',
+        )}
+      >
         <SearchBox
           key={resetKey}
           value={search.q ?? ''}
           onChange={(q) => update({ q: q || undefined })}
         />
-        <Input
-          type="date"
-          aria-label="Dari tanggal"
-          className="h-9"
-          value={search.dari ?? ''}
-          onChange={(event) => {
-            const dari = event.target.value || undefined
-            // A range that ends before it starts is refused by the API: keep it valid here.
-            update({
-              dari,
-              sampai: dari && search.sampai && dari > search.sampai ? dari : search.sampai,
-            })
-          }}
-        />
-        <Input
-          type="date"
-          aria-label="Sampai tanggal"
-          className="h-9"
-          value={search.sampai ?? ''}
-          onChange={(event) => {
-            const sampai = event.target.value || undefined
-            update({
-              sampai,
-              dari: sampai && search.dari && sampai < search.dari ? sampai : search.dari,
-            })
-          }}
-        />
+        {showDates ? (
+          <>
+            <Input
+              type="date"
+              aria-label="Dari tanggal"
+              className="h-9"
+              value={search.dari ?? ''}
+              onChange={(event) => {
+                const dari = event.target.value || undefined
+                // A range that ends before it starts is refused by the API: keep it valid here.
+                update({
+                  dari,
+                  sampai: dari && search.sampai && dari > search.sampai ? dari : search.sampai,
+                })
+              }}
+            />
+            <Input
+              type="date"
+              aria-label="Sampai tanggal"
+              className="h-9"
+              value={search.sampai ?? ''}
+              onChange={(event) => {
+                const sampai = event.target.value || undefined
+                update({
+                  sampai,
+                  dari: sampai && search.dari && sampai < search.dari ? sampai : search.dari,
+                })
+              }}
+            />
+          </>
+        ) : null}
         <NativeSelect
           aria-label="Status"
           className="h-9"
