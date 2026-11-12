@@ -14,6 +14,9 @@ export const ERROR_COPY = {
   network: 'Tidak dapat terhubung ke server. Periksa koneksi Anda.',
   unauthorized: 'Sesi Anda telah berakhir. Silakan masuk kembali.',
   badCredentials: 'Email atau kata sandi salah.',
+  // One message for a wrong code, a wrong phone and a malformed request: never say which
+  // (customers have no accounts, a mismatch must not reveal that a code exists).
+  bookingNotFound: 'Reservasi tidak ditemukan. Periksa kode booking dan nomor HP Anda.',
   originNotAllowed:
     'Aplikasi ini belum diizinkan oleh server (pengaturan CORS_ORIGINS). Hubungi pengelola sistem.',
   forbidden: 'Anda tidak memiliki akses ke fitur ini.',
