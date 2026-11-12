@@ -164,7 +164,7 @@ Built in order on `test/ai-prototype`, **one module = one commit**. The user dec
 | FE-4  | Admin login, session, guard, shell                                                                               | FE-05        | done   |
 | FE-5  | Admin bookings: list, filters, detail, status, reschedule, notes, reminder link                                  | FE-06, FE-07 | done   |
 | FE-6  | Admin manual booking                                                                                             | FE-08        | done   |
-| FE-7  | Admin catalog: services and artists                                                                              | FE-09, FE-10 | todo   |
+| FE-7  | Admin catalog: services and artists                                                                              | FE-09, FE-10 | done   |
 | FE-8  | Admin schedule: business hours and blocked slots                                                                 | FE-11, FE-12 | todo   |
 | FE-9  | Dashboard and CSV export                                                                                         | FE-13, FE-14 | todo   |
 | FE-10 | Notifications inbox and Web Push opt-in                                                                          | FE-15, FE-16 | todo   |

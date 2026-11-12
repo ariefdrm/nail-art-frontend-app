@@ -21,6 +21,8 @@ export type Admin = Required<Schemas['Admin']>
 export type TokenPair = Required<Schemas['TokenPair']>
 export type Notification = Required<Schemas['Notification']>
 export type DashboardSummary = Required<Schemas['DashboardSummary']>
+export type ServiceInput = Schemas['ServiceInput']
+export type ArtistInput = Schemas['ArtistInput']
 export type Pagination = Required<Schemas['Pagination']>
 export type ApiErrorBody = Schemas['Error']
 

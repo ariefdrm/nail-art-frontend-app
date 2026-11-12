@@ -182,4 +182,18 @@ describe('admin route guard', () => {
     expect(await screen.findByText(/langsung berstatus terkonfirmasi/)).toBeInTheDocument()
     expect(router.state.location.search).toMatchObject({ baru: true, status: 'pending' })
   })
+
+  it.each([
+    ['/admin/layanan', 'Layanan', '/admin/services'],
+    ['/admin/artist', 'Artist', '/admin/artists'],
+  ])('serves the %s admin page behind the guard', async (url, heading, endpoint) => {
+    server.use(
+      refreshOk,
+      meOk,
+      http.get(`${API}${endpoint}`, () => HttpResponse.json({ data: [] })),
+    )
+    setSessionHint()
+    await open(url)
+    expect(await screen.findByRole('heading', { name: heading })).toBeInTheDocument()
+  })
 })

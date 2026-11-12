@@ -17,6 +17,8 @@ import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as PesanIndexRouteImport } from './routes/pesan.index'
 import { Route as PesanBerhasilRouteImport } from './routes/pesan.berhasil'
 import { Route as AdminAppIndexRouteImport } from './routes/admin/_app/index'
+import { Route as AdminAppArtistRouteImport } from './routes/admin/_app/artist'
+import { Route as AdminAppLayananRouteImport } from './routes/admin/_app/layanan'
 import { Route as AdminAppPengaturanRouteImport } from './routes/admin/_app/pengaturan'
 import { Route as AdminAppReservasiRouteImport } from './routes/admin/_app/reservasi'
 
@@ -60,6 +62,16 @@ const AdminAppIndexRoute = AdminAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminAppRoute,
 } as any)
+const AdminAppArtistRoute = AdminAppArtistRouteImport.update({
+  id: '/artist',
+  path: '/artist',
+  getParentRoute: () => AdminAppRoute,
+} as any)
+const AdminAppLayananRoute = AdminAppLayananRouteImport.update({
+  id: '/layanan',
+  path: '/layanan',
+  getParentRoute: () => AdminAppRoute,
+} as any)
 const AdminAppPengaturanRoute = AdminAppPengaturanRouteImport.update({
   id: '/pengaturan',
   path: '/pengaturan',
@@ -79,6 +91,8 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
+  '/admin/artist': typeof AdminAppArtistRoute
+  '/admin/layanan': typeof AdminAppLayananRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/reservasi': typeof AdminAppReservasiRoute
   '/admin/': typeof AdminAppIndexRoute
@@ -90,6 +104,8 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan': typeof PesanIndexRoute
+  '/admin/artist': typeof AdminAppArtistRoute
+  '/admin/layanan': typeof AdminAppLayananRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/reservasi': typeof AdminAppReservasiRoute
   '/admin': typeof AdminAppIndexRoute
@@ -103,6 +119,8 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
+  '/admin/_app/artist': typeof AdminAppArtistRoute
+  '/admin/_app/layanan': typeof AdminAppLayananRoute
   '/admin/_app/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/_app/reservasi': typeof AdminAppReservasiRoute
   '/admin/_app/': typeof AdminAppIndexRoute
@@ -117,6 +135,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/pesan/berhasil'
     | '/pesan/'
+    | '/admin/artist'
+    | '/admin/layanan'
     | '/admin/pengaturan'
     | '/admin/reservasi'
     | '/admin/'
@@ -128,6 +148,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/pesan/berhasil'
     | '/pesan'
+    | '/admin/artist'
+    | '/admin/layanan'
     | '/admin/pengaturan'
     | '/admin/reservasi'
     | '/admin'
@@ -140,6 +162,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/pesan/berhasil'
     | '/pesan/'
+    | '/admin/_app/artist'
+    | '/admin/_app/layanan'
     | '/admin/_app/pengaturan'
     | '/admin/_app/reservasi'
     | '/admin/_app/'
@@ -213,6 +237,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppIndexRouteImport
       parentRoute: typeof AdminAppRoute
     }
+    '/admin/_app/artist': {
+      id: '/admin/_app/artist'
+      path: '/artist'
+      fullPath: '/admin/artist'
+      preLoaderRoute: typeof AdminAppArtistRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
+    '/admin/_app/layanan': {
+      id: '/admin/_app/layanan'
+      path: '/layanan'
+      fullPath: '/admin/layanan'
+      preLoaderRoute: typeof AdminAppLayananRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
     '/admin/_app/pengaturan': {
       id: '/admin/_app/pengaturan'
       path: '/pengaturan'
@@ -231,12 +269,16 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminAppRouteChildren {
+  AdminAppArtistRoute: typeof AdminAppArtistRoute
+  AdminAppLayananRoute: typeof AdminAppLayananRoute
   AdminAppPengaturanRoute: typeof AdminAppPengaturanRoute
   AdminAppReservasiRoute: typeof AdminAppReservasiRoute
   AdminAppIndexRoute: typeof AdminAppIndexRoute
 }
 
 const AdminAppRouteChildren: AdminAppRouteChildren = {
+  AdminAppArtistRoute: AdminAppArtistRoute,
+  AdminAppLayananRoute: AdminAppLayananRoute,
   AdminAppPengaturanRoute: AdminAppPengaturanRoute,
   AdminAppReservasiRoute: AdminAppReservasiRoute,
   AdminAppIndexRoute: AdminAppIndexRoute,
