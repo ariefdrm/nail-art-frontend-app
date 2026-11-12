@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
-import type { AvailableSlot } from '@/features/booking/api'
+import type { AvailableSlot } from '@/lib/api/public-data'
 
 const GROUP_THRESHOLD = 8
 

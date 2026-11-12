@@ -3,10 +3,14 @@ import type { components } from './schema.gen'
 type Schemas = components['schemas']
 
 /** Response schemas always carry their fields, the generator marks them optional. */
-export type Booking = Required<Schemas['Booking']>
 export type BookingStatus = Schemas['BookingStatus']
 export type Service = Required<Schemas['Service']>
 export type Artist = Required<Schemas['Artist']>
+/** A booking embeds its service and artist in full. */
+export type Booking = Omit<Required<Schemas['Booking']>, 'service' | 'artist'> & {
+  service: Service
+  artist: Artist
+}
 export type Slot = Required<Schemas['Slot']>
 export type Availability = Required<Schemas['Availability']>
 export type BusinessHour = Schemas['BusinessHour']

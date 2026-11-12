@@ -162,7 +162,7 @@ Built in order on `test/ai-prototype`, **one module = one commit**. The user dec
 | FE-2  | Booking wizard                                                                                                   | FE-03        | done   |
 | FE-3  | Booking status lookup and customer cancel                                                                        | FE-04        | todo   |
 | FE-4  | Admin login, session, guard, shell                                                                               | FE-05        | done   |
-| FE-5  | Admin bookings: list, filters, detail, status, reschedule, notes, reminder link                                  | FE-06, FE-07 | todo   |
+| FE-5  | Admin bookings: list, filters, detail, status, reschedule, notes, reminder link                                  | FE-06, FE-07 | done   |
 | FE-6  | Admin manual booking                                                                                             | FE-08        | todo   |
 | FE-7  | Admin catalog: services and artists                                                                              | FE-09, FE-10 | todo   |
 | FE-8  | Admin schedule: business hours and blocked slots                                                                 | FE-11, FE-12 | todo   |

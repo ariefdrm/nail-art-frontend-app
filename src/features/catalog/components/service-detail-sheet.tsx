@@ -11,8 +11,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useServiceQuery } from '@/features/catalog/queries'
 import { toApiError } from '@/lib/api/errors'
+import { useServiceQuery } from '@/lib/api/public-queries'
 import { formatCategory, formatDuration, formatRupiah } from '@/lib/format'
 
 import { ServiceImage } from './service-image'

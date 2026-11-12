@@ -22,6 +22,12 @@ const dateShort = new Intl.DateTimeFormat(LOCALE, {
   month: 'short',
   year: 'numeric',
 })
+const dayShort = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+})
 const timeFormat = new Intl.DateTimeFormat(LOCALE, {
   timeZone: TIME_ZONE,
   hour: '2-digit',
@@ -133,4 +139,14 @@ export function toDayKey(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   return `${date.getFullYear()}-${month}-${day}`
+}
+
+/** "Sel, 10 Nov" */
+export function formatDayShort(value: DateInput): string {
+  return dayShort.format(toDate(value))
+}
+
+/** True once the instant has passed (e.g. a booking's start). */
+export function hasStarted(value: DateInput): boolean {
+  return toDate(value).getTime() <= Date.now()
 }

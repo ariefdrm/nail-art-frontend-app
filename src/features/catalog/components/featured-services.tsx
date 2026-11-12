@@ -3,7 +3,7 @@ import { Sparkles } from 'lucide-react'
 
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
-import { useServicesQuery } from '@/features/catalog/queries'
+import { useServicesQuery } from '@/lib/api/public-queries'
 
 import { ServiceCard } from './service-card'
 import { ServiceGrid, ServiceGridSkeleton } from './service-grid'

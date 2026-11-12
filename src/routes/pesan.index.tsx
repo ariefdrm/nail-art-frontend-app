@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { BookingWizard } from '@/features/booking/components/booking-wizard'
-import { useServicesQuery } from '@/features/catalog/queries'
 import { CustomerLayout } from '@/layouts/customer-layout'
+import { useServicesQuery } from '@/lib/api/public-queries'
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/
 

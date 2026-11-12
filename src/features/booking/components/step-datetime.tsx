@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { id as idLocale } from 'react-day-picker/locale'
 
+import { SlotPicker } from '@/components/common/slot-picker'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { useArtistsQuery, useAvailabilityQuery } from '@/features/booking/queries'
+import { useArtistsQuery, useAvailabilityQuery } from '@/lib/api/public-queries'
 import {
   formatDate,
   formatDuration,
@@ -14,8 +15,6 @@ import {
   toDayKey,
 } from '@/lib/format'
 import { cn } from '@/lib/utils'
-
-import { SlotPicker } from './slot-picker'
 
 import type { Service } from '@/lib/api/types'
 

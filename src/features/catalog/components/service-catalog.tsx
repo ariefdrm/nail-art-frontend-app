@@ -3,7 +3,7 @@ import { Sparkles } from 'lucide-react'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { Button } from '@/components/ui/button'
-import { useServicesQuery } from '@/features/catalog/queries'
+import { useServicesQuery } from '@/lib/api/public-queries'
 import { formatCategory } from '@/lib/format'
 
 import { CategoryFilter } from './category-filter'

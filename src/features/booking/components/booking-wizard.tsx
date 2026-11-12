@@ -5,10 +5,11 @@ import { useForm } from 'react-hook-form'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { useArtistsQuery, useCreateBookingMutation } from '@/features/booking/queries'
+import { useCreateBookingMutation } from '@/features/booking/queries'
 import { EMPTY_GUEST, GUEST_FIELDS, guestSchema } from '@/features/booking/schemas'
 import { useCountdown } from '@/hooks/use-countdown'
 import { applyApiErrors, errorMessage, toApiError } from '@/lib/api/errors'
+import { useArtistsQuery } from '@/lib/api/public-queries'
 import { ERROR_COPY, rateLimitedMessage } from '@/lib/copy'
 import { normalizePhone } from '@/lib/format'
 

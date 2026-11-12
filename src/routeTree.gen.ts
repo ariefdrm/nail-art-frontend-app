@@ -18,6 +18,7 @@ import { Route as PesanIndexRouteImport } from './routes/pesan.index'
 import { Route as PesanBerhasilRouteImport } from './routes/pesan.berhasil'
 import { Route as AdminAppIndexRouteImport } from './routes/admin/_app/index'
 import { Route as AdminAppPengaturanRouteImport } from './routes/admin/_app/pengaturan'
+import { Route as AdminAppReservasiRouteImport } from './routes/admin/_app/reservasi'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const AdminAppPengaturanRoute = AdminAppPengaturanRouteImport.update({
   path: '/pengaturan',
   getParentRoute: () => AdminAppRoute,
 } as any)
+const AdminAppReservasiRoute = AdminAppReservasiRouteImport.update({
+  id: '/reservasi',
+  path: '/reservasi',
+  getParentRoute: () => AdminAppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
+  '/admin/reservasi': typeof AdminAppReservasiRoute
   '/admin/': typeof AdminAppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan': typeof PesanIndexRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
+  '/admin/reservasi': typeof AdminAppReservasiRoute
   '/admin': typeof AdminAppIndexRoute
 }
 export interface FileRoutesById {
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
   '/admin/_app/pengaturan': typeof AdminAppPengaturanRoute
+  '/admin/_app/reservasi': typeof AdminAppReservasiRoute
   '/admin/_app/': typeof AdminAppIndexRoute
 }
 export interface FileRouteTypes {
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan/'
     | '/admin/pengaturan'
+    | '/admin/reservasi'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan'
     | '/admin/pengaturan'
+    | '/admin/reservasi'
     | '/admin'
   id:
     | '__root__'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan/'
     | '/admin/_app/pengaturan'
+    | '/admin/_app/reservasi'
     | '/admin/_app/'
   fileRoutesById: FileRoutesById
 }
@@ -208,16 +220,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppPengaturanRouteImport
       parentRoute: typeof AdminAppRoute
     }
+    '/admin/_app/reservasi': {
+      id: '/admin/_app/reservasi'
+      path: '/reservasi'
+      fullPath: '/admin/reservasi'
+      preLoaderRoute: typeof AdminAppReservasiRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
   }
 }
 
 interface AdminAppRouteChildren {
   AdminAppPengaturanRoute: typeof AdminAppPengaturanRoute
+  AdminAppReservasiRoute: typeof AdminAppReservasiRoute
   AdminAppIndexRoute: typeof AdminAppIndexRoute
 }
 
 const AdminAppRouteChildren: AdminAppRouteChildren = {
   AdminAppPengaturanRoute: AdminAppPengaturanRoute,
+  AdminAppReservasiRoute: AdminAppReservasiRoute,
   AdminAppIndexRoute: AdminAppIndexRoute,
 }
 

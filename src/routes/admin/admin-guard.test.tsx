@@ -111,4 +111,39 @@ describe('admin route guard', () => {
     expect(loggedOut).toBe(true)
     expect(localStorage.getItem('np.session')).toBeNull()
   })
+
+  it('opens the reservation list on today plus a week, then keeps what the URL says', async () => {
+    server.use(
+      refreshOk,
+      meOk,
+      http.get(`${API}/admin/bookings`, () =>
+        HttpResponse.json({ data: [], meta: { page: 1, per_page: 20, total: 0, total_pages: 0 } }),
+      ),
+      http.get(`${API}/artists`, () => HttpResponse.json({ data: [] })),
+    )
+    setSessionHint()
+    const router = await open('/admin/reservasi')
+
+    expect(await screen.findByRole('heading', { name: 'Reservasi' })).toBeInTheDocument()
+    expect(router.state.location.search).toMatchObject({
+      dari: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      sampai: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    })
+  })
+
+  it('does not force a date range when a filter is already in the URL', async () => {
+    server.use(
+      refreshOk,
+      meOk,
+      http.get(`${API}/admin/bookings`, () =>
+        HttpResponse.json({ data: [], meta: { page: 1, per_page: 20, total: 0, total_pages: 0 } }),
+      ),
+      http.get(`${API}/artists`, () => HttpResponse.json({ data: [] })),
+    )
+    setSessionHint()
+    const router = await open('/admin/reservasi?status=pending')
+
+    expect(await screen.findByRole('heading', { name: 'Reservasi' })).toBeInTheDocument()
+    expect(router.state.location.search).toEqual({ status: 'pending' })
+  })
 })
