@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   addMonths,
+  daysBetween,
   endOfMonth,
   endOfWeek,
   isSameMonth,
@@ -56,5 +57,13 @@ describe('calendar-days', () => {
     expect(grid.every((week) => week.length === 7)).toBe(true)
     expect(isSameMonth('2026-11-01', '2026-11-30')).toBe(true)
     expect(isSameMonth('2026-10-31', '2026-11-01')).toBe(false)
+  })
+
+  it('counts whole days between two days', () => {
+    expect(daysBetween('2026-11-10', '2026-11-10')).toBe(0)
+    expect(daysBetween('2026-11-10', '2026-11-17')).toBe(7)
+    expect(daysBetween('2026-02-28', '2026-03-01')).toBe(1)
+    expect(daysBetween('2026-11-17', '2026-11-10')).toBe(-7)
+    expect(daysBetween('2026-01-01', '2027-01-01')).toBe(365)
   })
 })

@@ -28,6 +28,18 @@ const refreshOk = http.post(`${API}/auth/refresh`, () =>
   }),
 )
 const meOk = http.get(`${API}/auth/me`, () => HttpResponse.json({ data: ME }))
+const summaryOk = http.get(`${API}/admin/dashboard/summary`, () =>
+  HttpResponse.json({
+    data: {
+      total_bookings: 0,
+      by_status: {},
+      no_show_rate: null,
+      online_booking_ratio: null,
+      revenue_completed: 0,
+      avg_confirmation_minutes: null,
+    },
+  }),
+)
 
 async function open(url: string) {
   const queryClient = createQueryClient()
@@ -55,10 +67,10 @@ describe('admin route guard', () => {
   })
 
   it('resumes the session from the cookie and shows the dashboard', async () => {
-    server.use(refreshOk, meOk)
+    server.use(refreshOk, meOk, summaryOk)
     setSessionHint()
     await open('/admin')
-    expect(await screen.findByRole('heading', { name: 'Halo, Siti Rahayu' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
   })
 
   it('returns to login when the cookie is no longer valid', async () => {
@@ -85,16 +97,17 @@ describe('admin route guard', () => {
   })
 
   it('skips the login form for someone already signed in', async () => {
-    server.use(refreshOk, meOk)
+    server.use(refreshOk, meOk, summaryOk)
     setSessionHint()
     await open('/admin/login')
-    expect(await screen.findByRole('heading', { name: 'Halo, Siti Rahayu' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
   })
 
   it('logs out from the top bar and clears the session', async () => {
     let loggedOut = false
     server.use(
       refreshOk,
+      summaryOk,
       meOk,
       http.post(`${API}/auth/logout`, () => {
         loggedOut = true

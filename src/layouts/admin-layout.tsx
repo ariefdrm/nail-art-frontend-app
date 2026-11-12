@@ -23,10 +23,11 @@ const NAV_LINK = cn(
   FOCUS,
 )
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+function NavLinks({ role, onNavigate }: { role: string; onNavigate?: () => void }) {
+  const items = ADMIN_NAV_ITEMS.filter((item) => !item.ownerOnly || role === 'owner')
   return (
     <nav aria-label="Admin" className="flex flex-col py-2">
-      {ADMIN_NAV_ITEMS.map((item) => (
+      {items.map((item) => (
         <Link
           key={item.to}
           to={item.to}
@@ -91,7 +92,7 @@ export function AdminLayout({ admin, children }: AdminLayoutProps) {
         <div className="flex h-14 items-center border-b border-sidebar-border px-4">
           <Wordmark />
         </div>
-        <NavLinks />
+        <NavLinks role={admin.role} />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -113,7 +114,7 @@ export function AdminLayout({ admin, children }: AdminLayoutProps) {
               <SheetTitle className="flex h-14 items-center border-b border-sidebar-border px-4">
                 <Wordmark />
               </SheetTitle>
-              <NavLinks onNavigate={() => setIsMenuOpen(false)} />
+              <NavLinks role={admin.role} onNavigate={() => setIsMenuOpen(false)} />
             </SheetContent>
           </Sheet>
           <UserBar admin={admin} onLogout={handleLogout} isLoggingOut={logout.isPending} />

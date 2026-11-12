@@ -18,6 +18,7 @@ import { Route as PesanIndexRouteImport } from './routes/pesan.index'
 import { Route as PesanBerhasilRouteImport } from './routes/pesan.berhasil'
 import { Route as AdminAppIndexRouteImport } from './routes/admin/_app/index'
 import { Route as AdminAppArtistRouteImport } from './routes/admin/_app/artist'
+import { Route as AdminAppEksporRouteImport } from './routes/admin/_app/ekspor'
 import { Route as AdminAppJadwalRouteImport } from './routes/admin/_app/jadwal'
 import { Route as AdminAppLayananRouteImport } from './routes/admin/_app/layanan'
 import { Route as AdminAppPengaturanRouteImport } from './routes/admin/_app/pengaturan'
@@ -68,6 +69,11 @@ const AdminAppArtistRoute = AdminAppArtistRouteImport.update({
   path: '/artist',
   getParentRoute: () => AdminAppRoute,
 } as any)
+const AdminAppEksporRoute = AdminAppEksporRouteImport.update({
+  id: '/ekspor',
+  path: '/ekspor',
+  getParentRoute: () => AdminAppRoute,
+} as any)
 const AdminAppJadwalRoute = AdminAppJadwalRouteImport.update({
   id: '/jadwal',
   path: '/jadwal',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
   '/admin/artist': typeof AdminAppArtistRoute
+  '/admin/ekspor': typeof AdminAppEksporRoute
   '/admin/jadwal': typeof AdminAppJadwalRoute
   '/admin/layanan': typeof AdminAppLayananRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan': typeof PesanIndexRoute
   '/admin/artist': typeof AdminAppArtistRoute
+  '/admin/ekspor': typeof AdminAppEksporRoute
   '/admin/jadwal': typeof AdminAppJadwalRoute
   '/admin/layanan': typeof AdminAppLayananRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
   '/admin/_app/artist': typeof AdminAppArtistRoute
+  '/admin/_app/ekspor': typeof AdminAppEksporRoute
   '/admin/_app/jadwal': typeof AdminAppJadwalRoute
   '/admin/_app/layanan': typeof AdminAppLayananRoute
   '/admin/_app/pengaturan': typeof AdminAppPengaturanRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan/'
     | '/admin/artist'
+    | '/admin/ekspor'
     | '/admin/jadwal'
     | '/admin/layanan'
     | '/admin/pengaturan'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan'
     | '/admin/artist'
+    | '/admin/ekspor'
     | '/admin/jadwal'
     | '/admin/layanan'
     | '/admin/pengaturan'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/pesan/berhasil'
     | '/pesan/'
     | '/admin/_app/artist'
+    | '/admin/_app/ekspor'
     | '/admin/_app/jadwal'
     | '/admin/_app/layanan'
     | '/admin/_app/pengaturan'
@@ -256,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppArtistRouteImport
       parentRoute: typeof AdminAppRoute
     }
+    '/admin/_app/ekspor': {
+      id: '/admin/_app/ekspor'
+      path: '/ekspor'
+      fullPath: '/admin/ekspor'
+      preLoaderRoute: typeof AdminAppEksporRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
     '/admin/_app/jadwal': {
       id: '/admin/_app/jadwal'
       path: '/jadwal'
@@ -289,6 +308,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminAppRouteChildren {
   AdminAppArtistRoute: typeof AdminAppArtistRoute
+  AdminAppEksporRoute: typeof AdminAppEksporRoute
   AdminAppJadwalRoute: typeof AdminAppJadwalRoute
   AdminAppLayananRoute: typeof AdminAppLayananRoute
   AdminAppPengaturanRoute: typeof AdminAppPengaturanRoute
@@ -298,6 +318,7 @@ interface AdminAppRouteChildren {
 
 const AdminAppRouteChildren: AdminAppRouteChildren = {
   AdminAppArtistRoute: AdminAppArtistRoute,
+  AdminAppEksporRoute: AdminAppEksporRoute,
   AdminAppJadwalRoute: AdminAppJadwalRoute,
   AdminAppLayananRoute: AdminAppLayananRoute,
   AdminAppPengaturanRoute: AdminAppPengaturanRoute,

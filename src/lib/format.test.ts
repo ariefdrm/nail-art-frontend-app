@@ -5,7 +5,9 @@ import {
   formatCategory,
   formatDayKey,
   formatDayRange,
+  formatMinutes,
   formatMonthYear,
+  formatPercent,
   formatWeekdayShort,
   minutesOfDayWib,
   formatDuration,
@@ -84,5 +86,13 @@ describe('format', () => {
   it('reads the WIB minute of day', () => {
     expect(minutesOfDayWib('2026-11-10T10:30:00+07:00')).toBe(630)
     expect(minutesOfDayWib('2026-11-10T20:00:00Z')).toBe(180)
+  })
+
+  it('formats ratios as percentages and minutes as a duration', () => {
+    expect(formatPercent(0.08)).toBe('8%')
+    expect(formatPercent(0.075)).toBe('7,5%')
+    expect(formatPercent(0)).toBe('0%')
+    expect(formatMinutes(18.4)).toBe('18 menit')
+    expect(formatMinutes(95)).toBe('1 j 35 mnt')
   })
 })

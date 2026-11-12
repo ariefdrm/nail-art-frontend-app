@@ -1,6 +1,8 @@
-import { AxiosHeaders, isAxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 
 import { ERROR_COPY, rateLimitedMessage } from '@/lib/copy'
+
+import { readHeader } from './headers'
 
 import type { AffectedBooking, ApiErrorBody } from './types'
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
@@ -36,12 +38,6 @@ export class ApiError extends Error {
     this.retryAfter = init.retryAfter
     this.isNetwork = init.isNetwork ?? false
   }
-}
-
-/** Adapters return AxiosHeaders (fetch, xhr) or a plain object (tests, other adapters). */
-function readHeader(headers: unknown, name: string): unknown {
-  if (headers instanceof AxiosHeaders) return headers.get(name)
-  return typeof headers === 'object' && headers !== null ? Reflect.get(headers, name) : undefined
 }
 
 function parseRetryAfter(value: unknown): number | undefined {

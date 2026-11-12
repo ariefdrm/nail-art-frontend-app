@@ -1,16 +1,31 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
 
-import { PageHeader } from '@/components/common/page-header'
+import { DashboardView } from '@/features/dashboard/components/dashboard-view'
 
-// TODO(FE-9): replace with the dashboard.
-export const Route = createFileRoute('/admin/_app/')({ component: AdminHome, ssr: false })
+const DAY = /^\d{4}-\d{2}-\d{2}$/
+
+const searchSchema = z.object({
+  dari: z.string().regex(DAY).optional().catch(undefined),
+  sampai: z.string().regex(DAY).optional().catch(undefined),
+})
+
+export const Route = createFileRoute('/admin/_app/')({
+  validateSearch: searchSchema,
+  head: () => ({ meta: [{ title: 'Dashboard | Admin | The Nail Palace' }] }),
+  component: AdminHome,
+  ssr: false,
+})
 
 function AdminHome() {
   const { admin } = Route.useRouteContext()
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
   return (
-    <PageHeader
-      title={`Halo, ${admin.name}`}
-      description="Dashboard dan menu pengelolaan akan hadir bertahap di sini."
+    <DashboardView
+      adminName={admin.name}
+      search={search}
+      onSearchChange={(next) => void navigate({ search: next, replace: true })}
     />
   )
 }

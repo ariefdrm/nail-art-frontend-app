@@ -214,3 +214,16 @@ export function minutesOfDayWib(value: DateInput): number {
   const [hours = 0, minutes = 0] = formatTime(value).split('.').map(Number)
   return hours * 60 + minutes
 }
+
+const percent = new Intl.NumberFormat(LOCALE, { style: 'percent', maximumFractionDigits: 1 })
+
+/** 0.075 -> "7,5%". For a ratio between 0 and 1. */
+export function formatPercent(ratio: number): string {
+  return percent.format(ratio)
+}
+
+/** 18.4 -> "18 menit"; 95 -> "1 j 35 mnt". */
+export function formatMinutes(minutes: number): string {
+  const rounded = Math.round(minutes)
+  return rounded < 60 ? `${rounded} menit` : formatDuration(rounded)
+}
