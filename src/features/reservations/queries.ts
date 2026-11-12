@@ -10,13 +10,19 @@ import { availabilityKeys } from '@/lib/api/public-queries'
 
 import {
   changeStatus,
+  createReservation,
   getReservation,
   listAllReservations,
   listReservations,
   updateReservation,
 } from './api'
 
-import type { ChangeStatusInput, ListReservationsParams, UpdateReservationInput } from './api'
+import type {
+  ChangeStatusInput,
+  CreateReservationInput,
+  ListReservationsParams,
+  UpdateReservationInput,
+} from './api'
 
 export const reservationKeys = {
   all: ['reservations'] as const,
@@ -89,6 +95,15 @@ export function useUpdateReservationMutation(id: string) {
   const refresh = useRefreshAfterChange()
   return useMutation({
     mutationFn: (input: UpdateReservationInput) => updateReservation(id, input),
+    onSettled: refresh,
+  })
+}
+
+export function useCreateReservationMutation() {
+  const refresh = useRefreshAfterChange()
+  return useMutation({
+    mutationFn: (input: CreateReservationInput) => createReservation(input),
+    // Success adds a row; a 409 means the slots we showed were stale. Either way, reload.
     onSettled: refresh,
   })
 }

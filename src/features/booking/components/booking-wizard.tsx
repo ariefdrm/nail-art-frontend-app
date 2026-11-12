@@ -1,28 +1,28 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, TriangleAlert, X } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
+import { GuestFields } from '@/components/common/guest-fields'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { useCreateBookingMutation } from '@/features/booking/queries'
-import { EMPTY_GUEST, GUEST_FIELDS, guestSchema } from '@/features/booking/schemas'
 import { useCountdown } from '@/hooks/use-countdown'
 import { applyApiErrors, errorMessage, toApiError } from '@/lib/api/errors'
 import { useArtistsQuery } from '@/lib/api/public-queries'
 import { ERROR_COPY, rateLimitedMessage } from '@/lib/copy'
 import { normalizePhone } from '@/lib/format'
+import { EMPTY_GUEST, GUEST_FIELDS, guestSchema } from '@/lib/guest-schema'
 
 import { StepDatetime } from './step-datetime'
-import { StepGuest } from './step-guest'
 import { StepReview } from './step-review'
 import { StepService } from './step-service'
 import { WizardProgress } from './wizard-progress'
 
 import type { ServicesState } from './step-service'
 import type { BookingConfirmation } from '@/features/booking/api'
-import type { GuestValues } from '@/features/booking/schemas'
 import type { Service } from '@/lib/api/types'
+import type { GuestValues } from '@/lib/guest-schema'
 
 /** Everything the URL carries. Guest details stay out of it: phone numbers do not belong in URLs. */
 export type BookingSearch = {
@@ -65,6 +65,7 @@ export function BookingWizard({
     defaultValues: EMPTY_GUEST,
     mode: 'onTouched',
   })
+  const phone = useWatch({ control: form.control, name: 'customer_phone' })
   const mutation = useCreateBookingMutation()
   const artists = useArtistsQuery(search.artist !== undefined)
 
@@ -189,7 +190,11 @@ export function BookingWizard({
           })}
           className="space-y-6"
         >
-          <StepGuest form={form} />
+          <GuestFields
+            register={(name) => form.register(name)}
+            errors={form.formState.errors}
+            phone={phone}
+          />
           {serverError ? (
             <p role="alert" className="text-sm font-medium">
               {serverError}

@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -161,5 +161,25 @@ describe('admin route guard', () => {
 
     expect(await screen.findByRole('button', { name: 'Minggu berikutnya' })).toBeInTheDocument()
     expect(router.state.location.search).toEqual({ tampilan: 'kalender' })
+  })
+
+  it('opens the new reservation panel from the URL and from its button', async () => {
+    server.use(
+      refreshOk,
+      meOk,
+      http.get(`${API}/admin/bookings`, () =>
+        HttpResponse.json({ data: [], meta: { page: 1, per_page: 20, total: 0, total_pages: 0 } }),
+      ),
+      http.get(`${API}/artists`, () => HttpResponse.json({ data: [] })),
+      http.get(`${API}/services`, () => HttpResponse.json({ data: [] })),
+    )
+    setSessionHint()
+    const router = await open('/admin/reservasi?status=pending')
+
+    // fireEvent: user-event's pointer simulation spins on this page in the test DOM.
+    fireEvent.click(await screen.findByRole('button', { name: /Reservasi baru/ }))
+
+    expect(await screen.findByText(/langsung berstatus terkonfirmasi/)).toBeInTheDocument()
+    expect(router.state.location.search).toMatchObject({ baru: true, status: 'pending' })
   })
 })

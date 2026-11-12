@@ -1,7 +1,7 @@
 import { formatDate, formatDuration, formatPhone, formatRupiah, formatTime } from '@/lib/format'
 
-import type { GuestValues } from '@/features/booking/schemas'
 import type { Service } from '@/lib/api/types'
+import type { GuestValues } from '@/lib/guest-schema'
 
 type StepReviewProps = {
   service: Service

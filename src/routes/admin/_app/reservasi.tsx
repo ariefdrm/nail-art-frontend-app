@@ -1,7 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Plus } from 'lucide-react'
 import { z } from 'zod'
 
 import { PageHeader } from '@/components/common/page-header'
+import { Button } from '@/components/ui/button'
+import { NewReservationSheet } from '@/features/reservations/components/new-reservation-sheet'
 import { ReservationCalendar } from '@/features/reservations/components/reservation-calendar'
 import { ReservationDetailSheet } from '@/features/reservations/components/reservation-detail-sheet'
 import { ReservationFilters } from '@/features/reservations/components/reservation-filters'
@@ -23,6 +26,7 @@ const searchSchema = z.object({
   sampai: z.string().regex(DAY).optional().catch(undefined),
   halaman: z.number().int().min(1).optional().catch(undefined),
   id: z.string().uuid().optional().catch(undefined),
+  baru: z.boolean().optional().catch(undefined),
   tampilan: z.enum(['kalender']).optional().catch(undefined),
   skala: z.enum(['minggu', 'bulan']).optional().catch(undefined),
   tanggal: z.string().regex(DAY).optional().catch(undefined),
@@ -50,7 +54,18 @@ function ReservationsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Reservasi"
-        actions={<ViewTabs search={search} onChange={(next) => void navigate({ search: next })} />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <ViewTabs search={search} onChange={(next) => void navigate({ search: next })} />
+            <Button
+              type="button"
+              onClick={() => void navigate({ search: { ...search, baru: true, id: undefined } })}
+            >
+              <Plus aria-hidden />
+              Reservasi baru
+            </Button>
+          </div>
+        }
       />
       <ReservationFilters
         search={search}
@@ -68,6 +83,14 @@ function ReservationsPage() {
           onSearchChange={(next) => void navigate({ search: next })}
         />
       )}
+      <NewReservationSheet
+        isOpen={search.baru === true}
+        onClose={() => void navigate({ search: { ...search, baru: undefined }, replace: true })}
+        // Opening the new reservation's panel also marks its row (or block) in the list.
+        onCreated={(booking) =>
+          void navigate({ search: { ...search, baru: undefined, id: booking.id } })
+        }
+      />
       <ReservationDetailSheet
         id={search.id}
         onClose={() => void navigate({ search: { ...search, id: undefined }, replace: true })}

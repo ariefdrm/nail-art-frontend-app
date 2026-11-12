@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { EMPTY_GUEST, guestSchema } from './schemas'
+import { EMPTY_GUEST, guestSchema } from './guest-schema'
 
 const VALID = { ...EMPTY_GUEST, customer_name: 'Siti Rahayu', customer_phone: '0812-3456-7890' }
 

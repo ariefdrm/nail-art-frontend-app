@@ -23,6 +23,17 @@ export type UpdateReservationInput = {
   admin_note?: string | undefined
 }
 
+/** Same body as a customer booking; the API creates it already confirmed, with source "admin". */
+export type CreateReservationInput = {
+  service_id: string
+  start_at: string
+  customer_name: string
+  customer_phone: string
+  artist_id?: string | undefined
+  customer_note?: string | undefined
+  reference_image_url?: string | undefined
+}
+
 export async function listReservations(
   params: ListReservationsParams,
 ): Promise<Paginated<Booking>> {
@@ -63,4 +74,9 @@ export async function listAllReservations(
     if (page >= result.meta.total_pages) break
   }
   return bookings
+}
+
+export async function createReservation(input: CreateReservationInput): Promise<Booking> {
+  const res = await api.post<{ data: Booking }>('/admin/bookings', input)
+  return res.data.data
 }

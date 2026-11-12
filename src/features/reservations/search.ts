@@ -14,6 +14,8 @@ export type ReservationSearch = {
   halaman?: number | undefined
   id?: string | undefined
   /** Absent means the list. */
+  /** The "Reservasi baru" panel is open. */
+  baru?: boolean | undefined
   tampilan?: 'kalender' | undefined
   skala?: CalendarScale | undefined
   /** Any day inside the week or month the calendar shows. Absent means today. */
@@ -33,8 +35,8 @@ export function defaultRange(): Pick<ReservationSearch, 'dari' | 'sampai'> {
 
 /** True when the URL carries no filter, page or selection at all. */
 export function isBlankSearch(search: ReservationSearch): boolean {
-  const { q, status, artist, dari, sampai, halaman, id, tampilan, skala, tanggal } = search
-  return [q, status, artist, dari, sampai, halaman, id, tampilan, skala, tanggal].every(
+  const { q, status, artist, dari, sampai, halaman, id, baru, tampilan, skala, tanggal } = search
+  return [q, status, artist, dari, sampai, halaman, id, baru, tampilan, skala, tanggal].every(
     (value) => value === undefined,
   )
 }
