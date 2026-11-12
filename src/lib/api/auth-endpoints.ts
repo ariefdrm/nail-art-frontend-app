@@ -34,6 +34,16 @@ function toAuthError(error: unknown): ApiError {
   })
 }
 
+/** POST /auth/login. The backend sets the refresh cookie; only the access grant is returned. */
+export async function postLogin(email: string, password: string): Promise<AccessGrant> {
+  try {
+    const res = await authClient.post<{ data: TokenPair }>('/auth/login', { email, password })
+    return toGrant(res.data.data)
+  } catch (error) {
+    throw toAuthError(error)
+  }
+}
+
 /** POST /auth/refresh with the cookie and no body (a body token would win over the cookie). */
 export async function postRefresh(): Promise<AccessGrant> {
   try {

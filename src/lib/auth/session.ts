@@ -36,6 +36,12 @@ export async function bootstrapSession(): Promise<boolean> {
   }
 }
 
+/** Forgets the session in this tab and tells the others, without calling the backend. */
+export function endLocalSession(): void {
+  clearSession()
+  broadcastLogout()
+}
+
 /** Ends this browser's session: backend clears the cookie, then every tab forgets its token. */
 export async function logout(): Promise<void> {
   try {
@@ -58,7 +64,8 @@ export function onSessionExpired(listener: SessionExpiredListener): () => void {
 }
 
 export function emitSessionExpired(): void {
+  // Listeners first, so they can tell "expired" from a voluntary logout when the session clears.
+  expiredListeners.forEach((listener) => listener())
   clearSession()
   broadcastLogout()
-  expiredListeners.forEach((listener) => listener())
 }

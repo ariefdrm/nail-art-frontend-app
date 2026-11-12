@@ -12,8 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CekBookingRouteImport } from './routes/cek-booking'
 import { Route as LayananRouteImport } from './routes/layanan'
+import { Route as AdminAppRouteImport } from './routes/admin/_app'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as PesanIndexRouteImport } from './routes/pesan.index'
 import { Route as PesanBerhasilRouteImport } from './routes/pesan.berhasil'
+import { Route as AdminAppIndexRouteImport } from './routes/admin/_app/index'
+import { Route as AdminAppPengaturanRouteImport } from './routes/admin/_app/pengaturan'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,6 +34,16 @@ const LayananRoute = LayananRouteImport.update({
   path: '/layanan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAppRoute = AdminAppRouteImport.update({
+  id: '/admin/_app',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PesanIndexRoute = PesanIndexRouteImport.update({
   id: '/pesan/',
   path: '/pesan/',
@@ -40,47 +54,91 @@ const PesanBerhasilRoute = PesanBerhasilRouteImport.update({
   path: '/pesan/berhasil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAppIndexRoute = AdminAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminAppRoute,
+} as any)
+const AdminAppPengaturanRoute = AdminAppPengaturanRouteImport.update({
+  id: '/pengaturan',
+  path: '/pengaturan',
+  getParentRoute: () => AdminAppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cek-booking': typeof CekBookingRoute
   '/layanan': typeof LayananRoute
+  '/admin': typeof AdminAppRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
+  '/admin/pengaturan': typeof AdminAppPengaturanRoute
+  '/admin/': typeof AdminAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cek-booking': typeof CekBookingRoute
   '/layanan': typeof LayananRoute
+  '/admin/login': typeof AdminLoginRoute
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan': typeof PesanIndexRoute
+  '/admin/pengaturan': typeof AdminAppPengaturanRoute
+  '/admin': typeof AdminAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cek-booking': typeof CekBookingRoute
   '/layanan': typeof LayananRoute
+  '/admin/_app': typeof AdminAppRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
   '/pesan/berhasil': typeof PesanBerhasilRoute
   '/pesan/': typeof PesanIndexRoute
+  '/admin/_app/pengaturan': typeof AdminAppPengaturanRoute
+  '/admin/_app/': typeof AdminAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cek-booking' | '/layanan' | '/pesan/berhasil' | '/pesan/'
+  fullPaths:
+    | '/'
+    | '/cek-booking'
+    | '/layanan'
+    | '/admin'
+    | '/admin/login'
+    | '/pesan/berhasil'
+    | '/pesan/'
+    | '/admin/pengaturan'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cek-booking' | '/layanan' | '/pesan/berhasil' | '/pesan'
+  to:
+    | '/'
+    | '/cek-booking'
+    | '/layanan'
+    | '/admin/login'
+    | '/pesan/berhasil'
+    | '/pesan'
+    | '/admin/pengaturan'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/cek-booking'
     | '/layanan'
+    | '/admin/_app'
+    | '/admin/login'
     | '/pesan/berhasil'
     | '/pesan/'
+    | '/admin/_app/pengaturan'
+    | '/admin/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CekBookingRoute: typeof CekBookingRoute
   LayananRoute: typeof LayananRoute
+  AdminAppRoute: typeof AdminAppRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
   PesanBerhasilRoute: typeof PesanBerhasilRoute
   PesanIndexRoute: typeof PesanIndexRoute
 }
@@ -108,6 +166,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayananRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/_app': {
+      id: '/admin/_app'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminAppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pesan/': {
       id: '/pesan/'
       path: '/pesan'
@@ -122,13 +194,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PesanBerhasilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/_app/': {
+      id: '/admin/_app/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminAppIndexRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
+    '/admin/_app/pengaturan': {
+      id: '/admin/_app/pengaturan'
+      path: '/pengaturan'
+      fullPath: '/admin/pengaturan'
+      preLoaderRoute: typeof AdminAppPengaturanRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
   }
 }
+
+interface AdminAppRouteChildren {
+  AdminAppPengaturanRoute: typeof AdminAppPengaturanRoute
+  AdminAppIndexRoute: typeof AdminAppIndexRoute
+}
+
+const AdminAppRouteChildren: AdminAppRouteChildren = {
+  AdminAppPengaturanRoute: AdminAppPengaturanRoute,
+  AdminAppIndexRoute: AdminAppIndexRoute,
+}
+
+const AdminAppRouteWithChildren = AdminAppRoute._addFileChildren(
+  AdminAppRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CekBookingRoute: CekBookingRoute,
   LayananRoute: LayananRoute,
+  AdminAppRoute: AdminAppRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
   PesanBerhasilRoute: PesanBerhasilRoute,
   PesanIndexRoute: PesanIndexRoute,
 }
