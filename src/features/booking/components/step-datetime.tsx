@@ -55,7 +55,7 @@ export function StepDatetime({
             {formatDuration(service.duration_minutes)}, {formatRupiah(service.price)}
           </span>
         </p>
-        <Button type="button" variant="link" size="sm" onClick={onChangeService}>
+        <Button type="button" variant="link" size="lg" onClick={onChangeService}>
           Ubah
         </Button>
       </div>

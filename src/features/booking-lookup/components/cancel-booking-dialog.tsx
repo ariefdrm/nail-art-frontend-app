@@ -57,10 +57,11 @@ export function CancelBookingDialog({
           )}
         </FormField>
         <AlertDialogFooter>
-          <AlertDialogCancel>Kembali</AlertDialogCancel>
+          <AlertDialogCancel size="lg">Kembali</AlertDialogCancel>
           <Button
             type="button"
             variant="destructive"
+            size="lg"
             disabled={error !== undefined || isPending}
             onClick={() => {
               onConfirm(reason.trim())

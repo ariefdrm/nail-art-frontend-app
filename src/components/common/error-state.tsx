@@ -19,7 +19,7 @@ export function ErrorState({ error, onRetry, className }: ErrorStateProps) {
       <AlertDescription>
         <p>{errorMessage(error)}</p>
         {onRetry ? (
-          <Button type="button" variant="outline" size="sm" className="mt-2" onClick={onRetry}>
+          <Button type="button" variant="outline" size="lg" className="mt-2" onClick={onRetry}>
             Coba lagi
           </Button>
         ) : null}

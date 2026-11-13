@@ -57,6 +57,7 @@ export function ServiceCatalog({ search, onSearchChange }: ServiceCatalogProps) 
             <Button
               type="button"
               variant="outline"
+              size="lg"
               onClick={() => onSearchChange({ ...search, kategori: undefined })}
             >
               Hapus filter

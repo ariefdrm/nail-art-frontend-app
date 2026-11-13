@@ -9,6 +9,7 @@ export function NotFoundPage() {
   return (
     <div className="mx-auto w-full max-w-xl px-4 py-16">
       <EmptyState
+        headingLevel="h1"
         icon={<SearchX className="size-6" aria-hidden />}
         title="Halaman tidak ditemukan"
         description="Alamat yang Anda tuju tidak ada atau sudah dipindahkan."

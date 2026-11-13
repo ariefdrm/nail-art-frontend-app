@@ -18,6 +18,7 @@ export function BookingSuccess({ booking }: BookingSuccessProps) {
     return (
       <div className="mx-auto max-w-xl py-16">
         <EmptyState
+          headingLevel="h1"
           title="Tidak ada pemesanan untuk ditampilkan"
           description="Kode booking hanya ditampilkan sekali setelah Anda memesan. Gunakan kode dan nomor HP Anda untuk mengecek pesanan."
           action={
@@ -55,6 +56,7 @@ export function BookingSuccess({ booking }: BookingSuccessProps) {
           <Button
             type="button"
             variant="outline"
+            size="lg"
             onClick={() => void copyCode(booking.booking_code)}
           >
             <Copy aria-hidden />

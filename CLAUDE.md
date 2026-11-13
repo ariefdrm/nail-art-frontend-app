@@ -50,10 +50,11 @@ bun --bun run lint:fix     # eslint --fix (import order, type imports, ...)
 bun --bun run check        # prettier --check .
 bun --bun run format       # prettier --write . && eslint --fix
 bun --bun run typecheck    # tsc --noEmit (strict + noUncheckedIndexedAccess)
-bun --bun run verify       # check + lint + typecheck + build
+bun --bun run verify       # check + lint + typecheck + test + build
+bun --bun run test:e2e     # Playwright smoke tests against a running stack (optional, see README)
 bun --bun run api:sync     # copy the contract from ../backend-nail-art-app into docs/openapi.yaml
 bun --bun run generate-routes   # tsr generate -> src/routeTree.gen.ts
-docker compose -f compose.dev.yml up --build -d   # dev container, host port 5173 (Docker; `podman compose` works too)
+docker compose -f compose.dev.yaml up --build -d   # dev container, host port 5173 (Docker; `podman compose` works too)
 ```
 
 Planned (added in module FE-0, then keep them working): `api:types` (generate `src/lib/api/schema.gen.ts` from `docs/openapi.yaml`), `test` (Vitest, then add it to `verify`), `test:e2e` (Playwright, optional). Run `verify` and the tests before declaring a module done. Run `format` after adding a shadcn component.
@@ -168,7 +169,7 @@ Built in order on `test/ai-prototype`, **one module = one commit**. The user dec
 | FE-8  | Admin schedule: business hours and blocked slots                                                                 | FE-11, FE-12 | done   |
 | FE-9  | Dashboard and CSV export                                                                                         | FE-13, FE-14 | done   |
 | FE-10 | Notifications inbox and Web Push opt-in                                                                          | FE-15, FE-16 | done   |
-| FE-11 | Polish: empty/loading/error pass, accessibility pass, end-to-end smoke test, README                              | FE-18        | todo   |
+| FE-11 | Polish: empty/loading/error pass, accessibility pass, end-to-end smoke test, README                              | FE-18        | done   |
 
 ## Definition of done (per module)
 

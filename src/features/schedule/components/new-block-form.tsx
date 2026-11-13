@@ -102,7 +102,15 @@ export function NewBlockForm({ onCreated }: NewBlockFormProps) {
           </Alert>
         ) : null}
 
-        <FormField id="scope" label="Yang diblokir">
+        <FormField
+          id="scope"
+          label="Yang diblokir"
+          hint={
+            artists.isError
+              ? 'Daftar artist tidak dapat dimuat, jadi saat ini hanya seluruh studio yang bisa diblokir.'
+              : undefined
+          }
+        >
           {(control) => (
             <NativeSelect {...control} {...form.register('scope')}>
               <option value="">Seluruh studio</option>

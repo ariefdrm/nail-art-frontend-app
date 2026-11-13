@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
+import { ErrorState } from '@/components/common/error-state'
 import { FormField } from '@/components/common/form-field'
 import { GuestFields } from '@/components/common/guest-fields'
 import { NativeSelect } from '@/components/common/native-select'
@@ -97,8 +98,8 @@ export function ManualReservationForm({ onCreated }: ManualReservationFormProps)
         ) : null}
 
         <FormField id="service_id" label="Layanan" error={errors.service_id?.message}>
-          {(control) => (
-            <NativeSelect {...control} {...register('service_id', clearSlot)}>
+          {(field) => (
+            <NativeSelect {...field} {...register('service_id', clearSlot)}>
               <option value="">Pilih layanan</option>
               {services.data?.map((service) => (
                 <option key={service.id} value={service.id}>
@@ -110,9 +111,13 @@ export function ManualReservationForm({ onCreated }: ManualReservationFormProps)
           )}
         </FormField>
 
+        {services.isError ? (
+          <ErrorState error={services.error} onRetry={() => void services.refetch()} />
+        ) : null}
+
         <FormField id="date" label="Tanggal" error={errors.date?.message}>
-          {(control) => (
-            <Input {...control} type="date" min={todayWib()} {...register('date', clearSlot)} />
+          {(field) => (
+            <Input {...field} type="date" min={todayWib()} {...register('date', clearSlot)} />
           )}
         </FormField>
 
@@ -143,11 +148,15 @@ export function ManualReservationForm({ onCreated }: ManualReservationFormProps)
         <FormField
           id="artist_id"
           label="Artist"
-          hint="Kosongkan agar sistem memilihkan artist yang kosong."
+          hint={
+            artists.isError
+              ? 'Daftar artist tidak dapat dimuat. Sistem akan memilihkan artist yang kosong.'
+              : 'Kosongkan agar sistem memilihkan artist yang kosong.'
+          }
           error={errors.artist_id?.message}
         >
-          {(control) => (
-            <NativeSelect {...control} {...register('artist_id', clearSlot)}>
+          {(field) => (
+            <NativeSelect {...field} {...register('artist_id', clearSlot)}>
               <option value="">Ditentukan sistem</option>
               {artists.data?.map((artist) => (
                 <option key={artist.id} value={artist.id}>

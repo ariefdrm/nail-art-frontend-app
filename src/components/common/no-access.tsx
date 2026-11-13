@@ -10,6 +10,7 @@ export function NoAccess() {
   return (
     <div className="mx-auto max-w-xl py-12">
       <EmptyState
+        headingLevel="h1"
         icon={<ShieldOff className="size-6" aria-hidden />}
         title="Anda tidak memiliki akses"
         description="Halaman ini hanya untuk pemilik studio."

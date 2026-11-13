@@ -50,6 +50,13 @@ export function ReschedulePanel({ booking, isPending, onSave }: ReschedulePanelP
     >
       <h3 className="text-sm font-semibold">Jadwalkan ulang</h3>
 
+      {services.isError || artists.isError ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          Daftar layanan atau artist tidak dapat dimuat penuh, jadi pilihan di bawah mungkin
+          terbatas.
+        </p>
+      ) : null}
+
       <FormField id="resched-service" label="Layanan">
         {(control) => (
           <NativeSelect

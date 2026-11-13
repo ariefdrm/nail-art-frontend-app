@@ -1,255 +1,172 @@
-# Nail Art Frontend Application
+# The Nail Palace: frontend
 
-Frontend application built with React, TanStack Start, TypeScript, and Tailwind CSS.
+One web app for a single nail art studio in Jambi, Indonesia. Customers browse services, book a slot and look up or cancel a booking, with no account. The owner and staff sign in at `/admin` to manage reservations, the catalog, the schedule, the dashboard and notifications. It talks to the REST API in `backend-nail-art-app`.
+
+Built with TanStack Start (React 19, file-based TanStack Router, SPA mode), Vite 8, TypeScript (strict), Tailwind CSS 4, shadcn/ui on Base UI, TanStack Query, react-hook-form + zod, axios and Bun. The interface is in Indonesian; code, comments and commit messages are in English.
 
 > [!IMPORTANT]
-> Contributor Guide: Before contributing to this project, please read the [![Git Workflow](https://img.shields.io/badge/Contribution-Git_Workflow-blue?logo=git)](./GIT_WORKFLOW.md) to understand our branching strategy, commit conventions, and pull request process.
+> Contributor guide: read [GIT_WORKFLOW.md](./GIT_WORKFLOW.md) for the branching strategy, commit conventions and pull request process. Working on this codebase with an AI agent? Start with [CLAUDE.md](./CLAUDE.md) and [CODE_STYLE.md](./CODE_STYLE.md).
 
-## Project Overview
+## Quick start
 
----
+You need the backend running first (see [Backend](#backend)). Then pick one:
 
-## Running in a container (development)
-
-Works with Docker and Podman; no Bun or Node needed on the host.
+**In a container (Docker or Podman, no Bun on the host)**
 
 ```bash
-docker compose -f compose.dev.yml up --build -d   # Docker
-podman compose -f compose.dev.yml up --build -d   # Podman (needs podman-compose or docker-compose)
+docker compose -f compose.dev.yaml up --build -d   # Docker
+podman compose -f compose.dev.yaml up --build -d   # Podman (needs podman-compose or docker-compose)
 ```
 
-Open <http://localhost:5173>. Source is mounted into the container, so edits reload live.
+**On the host**
 
-| Task                             | Command                                                                                               |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Logs                             | `docker compose -f compose.dev.yml logs -f web`                                                       |
-| Stop                             | `docker compose -f compose.dev.yml down`                                                              |
-| Run a command inside             | `docker compose -f compose.dev.yml exec web bun --bun run verify`                                     |
-| After changing `package.json`    | `docker compose -f compose.dev.yml up --build -d` (the container also runs `bun install` on start)    |
-| Reset dependencies               | `docker compose -f compose.dev.yml down -v` (removes the `node_modules` volume), then `up --build -d` |
-| Another API address (e.g. a LAN) | `VITE_API_BASE_URL=http://192.168.1.10:3000/api/v1 docker compose -f compose.dev.yml up -d`           |
+```bash
+bun install
+bun --bun run dev
+```
 
-Notes:
+Open <http://localhost:5173>. The port is fixed (`strictPort`): the backend allows exactly that origin.
 
-- The **browser** calls the API, so `VITE_API_BASE_URL` (default `http://localhost:3000/api/v1`) is an address reachable from your machine, not from inside the container.
-- The backend must list `http://localhost:5173` in `CORS_ORIGINS`, otherwise admin login answers `403 Origin tidak diizinkan`.
-- `node_modules` lives in a named volume on purpose: a host `node_modules` contains binaries built for your OS that do not run on Alpine. Install packages with `exec web bun add <pkg>` (or locally), not by mounting the host folder.
+| Task                             | Command                                                                                              |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Logs                             | `docker compose -f compose.dev.yaml logs -f web`                                                     |
+| Stop                             | `docker compose -f compose.dev.yaml down`                                                            |
+| Run a command inside             | `docker compose -f compose.dev.yaml exec web bun --bun run verify`                                   |
+| After changing `package.json`    | `docker compose -f compose.dev.yaml up --build -d` (the container also runs `bun install` on start)  |
+| Reset dependencies               | `docker compose -f compose.dev.yaml down -v` (drops the `node_modules` volume), then `up --build -d` |
+| Another API address (e.g. a LAN) | `VITE_API_BASE_URL=http://192.168.1.10:3000/api/v1 docker compose -f compose.dev.yaml up -d`         |
+
+Container notes:
+
+- The **browser** calls the API, so `VITE_API_BASE_URL` is an address reachable from your machine, not from inside the container.
+- `node_modules` lives in a named volume on purpose: a host `node_modules` holds binaries built for your OS that do not run on Alpine.
 - Rootless Podman keeps files in the project owned by you. With rootful Docker, files the container generates (`src/routeTree.gen.ts`, `.tanstack/`) are owned by root; run `sudo chown -R "$USER" .` if that gets in the way.
-- Without containers: `bun install && bun --bun run dev`.
 
-# Building For Production
+## Configuration
 
-To build this application for production:
+Copy `.env.example` to `.env` (the container needs no `.env`; compose supplies the defaults).
+
+| Variable                | Example                        | Meaning                                                                                                     |
+| ----------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`     | `http://localhost:3000/api/v1` | Backend base URL, including `/api/v1`                                                                       |
+| `VITE_MAX_ADVANCE_DAYS` | `60`                           | How far ahead a customer may book; must equal the backend's `MAX_ADVANCE_DAYS` (the API does not expose it) |
+
+Only `VITE_*` variables reach the browser. Both are validated at startup in `src/lib/env.ts`.
+
+## Backend
+
+The API lives in the sibling repository `backend-nail-art-app` (Express 5, PostgreSQL). Its contract is copied into this repo as [`docs/openapi.yaml`](./docs/openapi.yaml) and explained in [`docs/API_GUIDE.md`](./docs/API_GUIDE.md); refresh it with `bun --bun run api:sync` and regenerate the types with `bun --bun run api:types`.
+
+The backend must be configured for this app:
+
+- `CORS_ORIGINS` has to include the frontend origin (`http://localhost:5173` in development). Without it admin login answers `403 Origin tidak diizinkan` and the app shows a configuration message.
+- A fresh database has no services and every weekday closed, so no slot is bookable. Add services and opening hours from the admin pages (`/admin/layanan`, `/admin/jadwal`), or follow the bootstrap steps in `docs/API_GUIDE.md` section 9.
+- Web Push needs `VAPID_*` keys on the backend. Without them the "Notifikasi di perangkat ini" section stays hidden.
+
+## Pages
+
+| Path                              | What it is                                                                    |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| `/`, `/layanan`                   | Landing page and service catalog                                              |
+| `/pesan`, `/pesan/berhasil`       | Booking wizard (service, date and time, details, review) and result           |
+| `/cek-booking`                    | Look up a booking by code and phone number, or cancel it                      |
+| `/admin/login`                    | Sign in                                                                       |
+| `/admin`                          | Dashboard (ranges, key figures, status breakdown)                             |
+| `/admin/reservasi`                | Reservations as a list or a week/month calendar, detail panel, manual booking |
+| `/admin/layanan`, `/admin/artist` | Manage services and artists                                                   |
+| `/admin/jadwal`                   | Business hours and blocked time                                               |
+| `/admin/notifikasi`               | Notification inbox                                                            |
+| `/admin/ekspor`                   | CSV export (owner only)                                                       |
+| `/admin/pengaturan`               | Push notifications on this device, sign out of all devices                    |
+
+Customer site and admin are one app with separate layouts; the public site does not link to `/admin`. The route guard only spares people an empty screen: the backend enforces access.
+
+## How it works
+
+- **Layers.** `routes` (thin) → `features/*` → `components` and `lib`. A feature never imports another feature; shared code goes to `components/common` or `lib`. ESLint enforces this, along with "axios only in the API layer".
+- **Server state** lives in TanStack Query. Filters, pages and the selected item live in the URL (validated search params), so views can be linked.
+- **Admin sign-in.** The refresh token is an `HttpOnly` cookie set by the backend; the access token (15 minutes) lives in memory only. A page load or new tab resumes the session with one `POST /auth/refresh`. Refresh is single-flight across requests and tabs (Web Locks + `BroadcastChannel`) because the backend revokes every session if a rotated token is reused. Nothing secret is ever written to web storage; the only auth item in `localStorage` is the non-secret hint `np.session=1`. Details: `docs/API_GUIDE.md` section 4.
+- **Time and money.** Everything is shown in `Asia/Jakarta` and Rupiah through `src/lib/format.ts`; booking slots are sent back exactly as the availability API returned them.
+- **Design.** Black and white, light theme only, tokens only in `src/styles.css`; status is carried by icon, text and shape, never by color alone ([DESIGN_SPEC.md](./DESIGN_SPEC.md)). Presentation and data are separate so a designer can restyle the UI without touching data code.
+- **Failure paths.** Every list and form has loading, empty, error (with "Coba lagi") and normal states; `409`, `422`, `429` (with a `Retry-After` countdown), `403` and network errors each have a defined message ([PRD](./PRD_Frontend_The_Nail_Palace.md) section 8).
+
+## Commands
+
+```bash
+bun --bun run dev              # dev server on http://localhost:5173
+bun --bun run build            # production build into .output/
+bun --bun run verify           # format check + lint + typecheck + tests + build
+bun --bun run test             # Vitest (unit and component tests)
+bun --bun run test:watch       # Vitest in watch mode
+bun --bun run test:e2e         # Playwright smoke tests (see below)
+bun --bun run lint             # ESLint (type-aware)
+bun --bun run format           # Prettier + ESLint --fix
+bun --bun run typecheck        # tsc --noEmit
+bun --bun run api:sync         # copy the contract from ../backend-nail-art-app
+bun --bun run api:types        # generate src/lib/api/schema.gen.ts from docs/openapi.yaml
+bun --bun run generate-routes  # regenerate src/routeTree.gen.ts
+```
+
+After adding a shadcn component (`bunx --bun shadcn@latest add <name>`) run `bun --bun run format`.
+
+## Testing
+
+**Unit and component tests** (`bun --bun run test`, part of `verify`). Vitest + Testing Library + MSW, with the API mocked from the contract and the browser's push APIs faked. Tests sit next to the code as `*.test.ts(x)` and query by role and label.
+
+**End-to-end smoke tests** (`bun --bun run test:e2e`, optional). Playwright drives a real browser against a stack you start yourself: the backend and the frontend. They cover public pages (single `h1`, page language, landmarks, no sideways scrolling at phone width, skip link), a wrong lookup, the sign-in guard and, with credentials, the admin flow.
+
+```bash
+bun --bun run e2e:install                        # once: downloads Chromium
+bun --bun run test:e2e                           # public specs
+E2E_ADMIN_EMAIL=... E2E_ADMIN_PASSWORD=... bun --bun run test:e2e   # plus the admin specs
+```
+
+Notes: the booking spec **creates a real booking and cancels it again** (a cancelled booking named "Uji Otomatis" stays in the database it runs against); the backend rate-limits bookings and lookups per IP, so the specs run one at a time. On Linux the browser needs system libraries; `bunx playwright install-deps chromium` installs them (needs `sudo`). `E2E_BASE_URL` and `E2E_API_URL` override the default addresses.
+
+## Production build
 
 ```bash
 bun --bun run build
+PORT=8080 bun .output/server/index.mjs
 ```
 
-## Styling
+The build is a self-contained Nitro server (`bun` preset) that serves the SPA and `public/` (including the push service worker `sw.js`). For production, serve the frontend and the API from the same site (ideally one origin behind a reverse proxy): the refresh cookie and CORS are simplest that way, and the cookie rules in `docs/API_GUIDE.md` section 4.4 apply. Web Push works only on HTTPS or `localhost`.
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+## Project structure
 
-## Project Structure
-
-```bash
-nail-art-frontend-app/
-├── bun.lock                   # Bun dependency lockfile
-├── components.json            # shadcn/ui configuration for component generation
-├── compose.dev.yml            # Docker Compose configuration for development
-├── Dockerfile                 # Docker image configuration for the frontend application
-├── eslint.config.js           # ESLint configuration for code quality and linting
-├── package.json               # Project metadata, dependencies, and scripts
-├── prettier.config.js         # Prettier configuration for code formatting
-├── README.md                  # Project documentation and setup instructions
-├── src/                       # Main application source code
-│   ├── components/            # Reusable React components
-│   │   └── ui/                # Reusable UI components (shadcn/ui)
-│   │       └── button.tsx     # Button component implementation
-│   ├── layouts/               # Shared application layouts
-│   │   └── app.layouts.tsx    # Main application layout
-│   ├── lib/                   # Shared libraries and utility functions
-│   │   └── utils.ts           # Utility functions (e.g., class name merging)
-│   ├── router.tsx             # TanStack Router configuration and router initialization
-│   ├── routes/                # File-based route definitions
-│   │   ├── __root.tsx         # Root route defining the application shell and global context
-│   │   └── index.tsx          # Index route (homepage)
-│   ├── routeTree.gen.ts       # Auto-generated route tree by TanStack Router
-│   ├── start.ts               # TanStack Start server entry configuration
-│   ├── styles.css             # Global CSS styles and Tailwind CSS configuration
-│   └── utils/                 # Application-specific utility modules
-│       └── axios.ts           # Axios instance and HTTP client configuration
-├── tsconfig.json              # TypeScript compiler configuration
-├── tsr.config.json            # TanStack Router configuration
-└── vite.config.ts             # Vite configuration for TanStack Start
+```
+src/
+  routes/            # file-based routes; thin, they only compose features
+  features/          # one folder per area, each with api.ts, queries.ts, schemas.ts, components/
+    auth/ booking/ booking-lookup/ catalog/ home/
+    reservations/ admin-services/ admin-artists/ schedule/
+    dashboard/ export/ notifications/ push/
+  components/
+    ui/              # shadcn components (restyled through tokens)
+    common/          # shared building blocks: status badge, empty and error states, form field, ...
+  layouts/           # customer and admin shells
+  lib/
+    api/             # axios client, error handling, generated types, shared public data
+    auth/            # in-memory token, cross-tab refresh, session bootstrap
+    format.ts        # money, dates, times, phone numbers (Asia/Jakarta, id-ID)
+    push/            # Web Push helpers
+  hooks/             # small shared hooks
+  styles.css         # the only place for design tokens
+public/sw.js         # push service worker
+e2e/                 # Playwright smoke tests
+docs/                # API contract (openapi.yaml) and usage guide
 ```
 
-## Linting & Formatting
+## Known gaps in the backend contract
 
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+Recorded in [PRD](./PRD_Frontend_The_Nail_Palace.md) section 14.1 and worth passing on to the backend owner: no public endpoint for opening hours, availability counts the booking being rescheduled as busy, `MAX_ADVANCE_DAYS` is not exposed, there is no booking status history endpoint, and `Content-Disposition` is not in the CORS exposed headers (the CSV export therefore uses a fallback file name).
 
-```bash
-bun --bun run lint
-bun --bun run format
-bun --bun run check
-```
+## Documents
 
-## Deploy with Nitro
-
-This project uses Nitro as a generic server adapter, so it can run on any Node-compatible host.
-
-```bash
-npm run build
-node dist/server/index.mjs
-```
-
-The build output is a self-contained Node server. To deploy, push the `dist/` directory to your host (Render, Fly.io, your own VPS, etc.) and run the server command above.
-
-For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see <https://v3.nitro.build/deploy>.
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from '@tanstack/react-router'
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+| File                                                                 | What it covers                                                   |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [PRD_Frontend_The_Nail_Palace.md](./PRD_Frontend_The_Nail_Palace.md) | What to build: requirements FE-01 to FE-18, routes, error table  |
+| [DESIGN_SPEC.md](./DESIGN_SPEC.md)                                   | How it looks: tokens, components, wireframes, copy rules         |
+| [CODE_STYLE.md](./CODE_STYLE.md)                                     | How code is written, with patterns and what the tooling enforces |
+| [docs/API_GUIDE.md](./docs/API_GUIDE.md)                             | Conventions, auth, errors, endpoints and business rules          |
+| [GIT_WORKFLOW.md](./GIT_WORKFLOW.md)                                 | Branches, commits and pull requests                              |

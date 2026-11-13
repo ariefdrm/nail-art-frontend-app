@@ -8,9 +8,18 @@ type EmptyStateProps = {
   action?: React.ReactNode
   icon?: React.ReactNode
   className?: string
+  /** A page that is only this message needs it as the page's h1. */
+  headingLevel?: 'h1' | 'h2'
 }
 
-export function EmptyState({ title, description, action, icon, className }: EmptyStateProps) {
+export function EmptyState({
+  title,
+  description,
+  action,
+  icon,
+  className,
+  headingLevel: Heading = 'h2',
+}: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -21,7 +30,7 @@ export function EmptyState({ title, description, action, icon, className }: Empt
       <span className="text-muted-foreground">
         {icon ?? <Inbox className="size-6" aria-hidden />}
       </span>
-      <h2 className="text-lg font-semibold">{title}</h2>
+      <Heading className="text-lg font-semibold">{title}</Heading>
       {description ? (
         <p className="max-w-prose text-sm text-muted-foreground">{description}</p>
       ) : null}

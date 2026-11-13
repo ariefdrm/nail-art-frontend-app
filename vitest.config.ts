@@ -3,6 +3,8 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
+    // Playwright specs live in e2e/ and run with `test:e2e`, not here.
+    include: ['src/**/*.test.{ts,tsx}'],
     environment: 'happy-dom',
     setupFiles: ['./src/test/setup.ts'],
     env: {
