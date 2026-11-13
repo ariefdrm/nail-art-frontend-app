@@ -199,6 +199,7 @@ describe('admin route guard', () => {
   it.each([
     ['/admin/layanan', 'Layanan', '/admin/services'],
     ['/admin/artist', 'Artist', '/admin/artists'],
+    ['/admin/notifikasi', 'Notifikasi', '/admin/notifications'],
   ])('serves the %s admin page behind the guard', async (url, heading, endpoint) => {
     server.use(
       refreshOk,

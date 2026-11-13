@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { UserBar } from '@/features/auth/components/user-bar'
 import { useLogoutMutation } from '@/features/auth/queries'
+import { NotificationBell } from '@/features/notifications/components/notification-bell'
+import { UnreadBadge } from '@/features/notifications/components/unread-badge'
 import { onSessionExpired } from '@/lib/auth/session'
 import { getAccessToken, subscribeSession } from '@/lib/auth/token-store'
 import { cn } from '@/lib/utils'
@@ -37,6 +39,7 @@ function NavLinks({ role, onNavigate }: { role: string; onNavigate?: () => void 
         >
           <item.icon className="size-5" aria-hidden />
           {item.label}
+          {item.showsUnread ? <UnreadBadge className="ml-auto" /> : null}
         </Link>
       ))}
     </nav>
@@ -117,7 +120,10 @@ export function AdminLayout({ admin, children }: AdminLayoutProps) {
               <NavLinks role={admin.role} onNavigate={() => setIsMenuOpen(false)} />
             </SheetContent>
           </Sheet>
-          <UserBar admin={admin} onLogout={handleLogout} isLoggingOut={logout.isPending} />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <UserBar admin={admin} onLogout={handleLogout} isLoggingOut={logout.isPending} />
+          </div>
         </header>
         <main id="konten" tabIndex={-1} className="flex-1 p-4 outline-none md:p-6">
           {children}

@@ -227,3 +227,18 @@ export function formatMinutes(minutes: number): string {
   const rounded = Math.round(minutes)
   return rounded < 60 ? `${rounded} menit` : formatDuration(rounded)
 }
+
+const relative = new Intl.RelativeTimeFormat(LOCALE, { numeric: 'auto' })
+
+/** "baru saja", "2 menit yang lalu", "kemarin"; a date once it is a week old. */
+export function formatRelativeTime(value: DateInput, now: number = Date.now()): string {
+  const seconds = Math.round((now - toDate(value).getTime()) / 1000)
+  if (seconds < 45) return 'baru saja'
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return relative.format(-minutes, 'minute')
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return relative.format(-hours, 'hour')
+  const days = Math.round(hours / 24)
+  if (days < 7) return relative.format(-days, 'day')
+  return formatDateShort(value)
+}

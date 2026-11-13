@@ -167,7 +167,7 @@ Built in order on `test/ai-prototype`, **one module = one commit**. The user dec
 | FE-7  | Admin catalog: services and artists                                                                              | FE-09, FE-10 | done   |
 | FE-8  | Admin schedule: business hours and blocked slots                                                                 | FE-11, FE-12 | done   |
 | FE-9  | Dashboard and CSV export                                                                                         | FE-13, FE-14 | done   |
-| FE-10 | Notifications inbox and Web Push opt-in                                                                          | FE-15, FE-16 | todo   |
+| FE-10 | Notifications inbox and Web Push opt-in                                                                          | FE-15, FE-16 | done   |
 | FE-11 | Polish: empty/loading/error pass, accessibility pass, end-to-end smoke test, README                              | FE-18        | todo   |
 
 ## Definition of done (per module)

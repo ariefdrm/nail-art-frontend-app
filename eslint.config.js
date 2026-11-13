@@ -120,6 +120,8 @@ export default [
       'node_modules/**',
       'src/routeTree.gen.ts',
       'src/lib/api/schema.gen.ts',
+      // Served as-is from the site root (the push service worker); not part of the app bundle.
+      'public/**',
     ],
   },
 

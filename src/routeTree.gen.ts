@@ -21,6 +21,7 @@ import { Route as AdminAppArtistRouteImport } from './routes/admin/_app/artist'
 import { Route as AdminAppEksporRouteImport } from './routes/admin/_app/ekspor'
 import { Route as AdminAppJadwalRouteImport } from './routes/admin/_app/jadwal'
 import { Route as AdminAppLayananRouteImport } from './routes/admin/_app/layanan'
+import { Route as AdminAppNotifikasiRouteImport } from './routes/admin/_app/notifikasi'
 import { Route as AdminAppPengaturanRouteImport } from './routes/admin/_app/pengaturan'
 import { Route as AdminAppReservasiRouteImport } from './routes/admin/_app/reservasi'
 
@@ -84,6 +85,11 @@ const AdminAppLayananRoute = AdminAppLayananRouteImport.update({
   path: '/layanan',
   getParentRoute: () => AdminAppRoute,
 } as any)
+const AdminAppNotifikasiRoute = AdminAppNotifikasiRouteImport.update({
+  id: '/notifikasi',
+  path: '/notifikasi',
+  getParentRoute: () => AdminAppRoute,
+} as any)
 const AdminAppPengaturanRoute = AdminAppPengaturanRouteImport.update({
   id: '/pengaturan',
   path: '/pengaturan',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/admin/ekspor': typeof AdminAppEksporRoute
   '/admin/jadwal': typeof AdminAppJadwalRoute
   '/admin/layanan': typeof AdminAppLayananRoute
+  '/admin/notifikasi': typeof AdminAppNotifikasiRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/reservasi': typeof AdminAppReservasiRoute
   '/admin/': typeof AdminAppIndexRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/admin/ekspor': typeof AdminAppEksporRoute
   '/admin/jadwal': typeof AdminAppJadwalRoute
   '/admin/layanan': typeof AdminAppLayananRoute
+  '/admin/notifikasi': typeof AdminAppNotifikasiRoute
   '/admin/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/reservasi': typeof AdminAppReservasiRoute
   '/admin': typeof AdminAppIndexRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/admin/_app/ekspor': typeof AdminAppEksporRoute
   '/admin/_app/jadwal': typeof AdminAppJadwalRoute
   '/admin/_app/layanan': typeof AdminAppLayananRoute
+  '/admin/_app/notifikasi': typeof AdminAppNotifikasiRoute
   '/admin/_app/pengaturan': typeof AdminAppPengaturanRoute
   '/admin/_app/reservasi': typeof AdminAppReservasiRoute
   '/admin/_app/': typeof AdminAppIndexRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/admin/ekspor'
     | '/admin/jadwal'
     | '/admin/layanan'
+    | '/admin/notifikasi'
     | '/admin/pengaturan'
     | '/admin/reservasi'
     | '/admin/'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/admin/ekspor'
     | '/admin/jadwal'
     | '/admin/layanan'
+    | '/admin/notifikasi'
     | '/admin/pengaturan'
     | '/admin/reservasi'
     | '/admin'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/admin/_app/ekspor'
     | '/admin/_app/jadwal'
     | '/admin/_app/layanan'
+    | '/admin/_app/notifikasi'
     | '/admin/_app/pengaturan'
     | '/admin/_app/reservasi'
     | '/admin/_app/'
@@ -289,6 +301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppLayananRouteImport
       parentRoute: typeof AdminAppRoute
     }
+    '/admin/_app/notifikasi': {
+      id: '/admin/_app/notifikasi'
+      path: '/notifikasi'
+      fullPath: '/admin/notifikasi'
+      preLoaderRoute: typeof AdminAppNotifikasiRouteImport
+      parentRoute: typeof AdminAppRoute
+    }
     '/admin/_app/pengaturan': {
       id: '/admin/_app/pengaturan'
       path: '/pengaturan'
@@ -311,6 +330,7 @@ interface AdminAppRouteChildren {
   AdminAppEksporRoute: typeof AdminAppEksporRoute
   AdminAppJadwalRoute: typeof AdminAppJadwalRoute
   AdminAppLayananRoute: typeof AdminAppLayananRoute
+  AdminAppNotifikasiRoute: typeof AdminAppNotifikasiRoute
   AdminAppPengaturanRoute: typeof AdminAppPengaturanRoute
   AdminAppReservasiRoute: typeof AdminAppReservasiRoute
   AdminAppIndexRoute: typeof AdminAppIndexRoute
@@ -321,6 +341,7 @@ const AdminAppRouteChildren: AdminAppRouteChildren = {
   AdminAppEksporRoute: AdminAppEksporRoute,
   AdminAppJadwalRoute: AdminAppJadwalRoute,
   AdminAppLayananRoute: AdminAppLayananRoute,
+  AdminAppNotifikasiRoute: AdminAppNotifikasiRoute,
   AdminAppPengaturanRoute: AdminAppPengaturanRoute,
   AdminAppReservasiRoute: AdminAppReservasiRoute,
   AdminAppIndexRoute: AdminAppIndexRoute,

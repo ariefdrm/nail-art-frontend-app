@@ -8,6 +8,7 @@ import {
   formatMinutes,
   formatMonthYear,
   formatPercent,
+  formatRelativeTime,
   formatWeekdayShort,
   minutesOfDayWib,
   formatDuration,
@@ -94,5 +95,15 @@ describe('format', () => {
     expect(formatPercent(0)).toBe('0%')
     expect(formatMinutes(18.4)).toBe('18 menit')
     expect(formatMinutes(95)).toBe('1 j 35 mnt')
+  })
+
+  it('describes how long ago something happened', () => {
+    const now = Date.parse('2026-11-12T10:00:00+07:00')
+    const ago = (ms: number) => new Date(now - ms).toISOString()
+    expect(formatRelativeTime(ago(10_000), now)).toBe('baru saja')
+    expect(formatRelativeTime(ago(2 * 60_000), now)).toBe('2 menit yang lalu')
+    expect(formatRelativeTime(ago(3 * 3_600_000), now)).toBe('3 jam yang lalu')
+    expect(formatRelativeTime(ago(86_400_000), now)).toBe('kemarin')
+    expect(formatRelativeTime(ago(20 * 86_400_000), now)).toMatch(/^\d{1,2} \w+ 2026$/)
   })
 })

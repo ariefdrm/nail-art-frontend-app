@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { PageHeader } from '@/components/common/page-header'
 import { ConfirmLogoutAll } from '@/features/auth/components/confirm-logout-all'
+import { PushSettings } from '@/features/push/components/push-settings'
 
 export const Route = createFileRoute('/admin/_app/pengaturan')({
   head: () => ({ meta: [{ title: 'Pengaturan | Admin | The Nail Palace' }] }),
@@ -14,6 +15,7 @@ function SettingsPage() {
   return (
     <div className="max-w-xl space-y-8">
       <PageHeader title="Pengaturan" />
+      <PushSettings />
       <section aria-labelledby="session-title" className="space-y-3">
         <h2 id="session-title" className="text-2xl font-semibold tracking-tight">
           Sesi
