@@ -1,12 +1,15 @@
 import { Link } from '@tanstack/react-router'
 import { CircleCheck, Copy, Info } from 'lucide-react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { BookingCode } from '@/components/common/booking-code'
+import { DownloadReceiptButton } from '@/components/common/download-receipt-button'
 import { EmptyState } from '@/components/common/empty-state'
 import { StatusBadge } from '@/components/common/status-badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { useSavedBookings } from '@/hooks/use-saved-bookings'
 import { formatDate, formatRupiah, formatTime } from '@/lib/format'
 
 import type { BookingConfirmation } from '@/features/booking/api'
@@ -14,6 +17,18 @@ import type { BookingConfirmation } from '@/features/booking/api'
 type BookingSuccessProps = { booking: BookingConfirmation | undefined }
 
 export function BookingSuccess({ booking }: BookingSuccessProps) {
+  const { add } = useSavedBookings()
+  const savedCode = booking?.booking_code
+  const serviceName = booking?.service_name
+  const startAt = booking?.start_at
+
+  // Remember the code on this device so it can be found again on the lookup page.
+  useEffect(() => {
+    if (savedCode && serviceName && startAt) {
+      add({ code: savedCode, service_name: serviceName, start_at: startAt })
+    }
+  }, [savedCode, serviceName, startAt, add])
+
   if (!booking) {
     return (
       <div className="mx-auto max-w-xl py-16">
@@ -63,7 +78,10 @@ export function BookingSuccess({ booking }: BookingSuccessProps) {
             Salin
           </Button>
         </div>
-        <StatusBadge status={booking.status} />
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pt-2">
+          <StatusBadge status={booking.status} />
+          <DownloadReceiptButton receipt={booking} className="w-full sm:w-auto" />
+        </div>
       </section>
 
       <p className="font-medium tabular-nums">
@@ -75,7 +93,8 @@ export function BookingSuccess({ booking }: BookingSuccessProps) {
         <Info aria-hidden />
         <AlertTitle>Pemilik akan mengonfirmasi pesanan Anda</AlertTitle>
         <AlertDescription>
-          Simpan kode ini bersama nomor HP Anda untuk mengecek atau membatalkan pesanan.
+          Unduh bukti atau simpan kode ini bersama nomor HP Anda untuk mengecek atau membatalkan
+          pesanan. Kode juga tersimpan di perangkat ini (tanpa nomor HP).
         </AlertDescription>
       </Alert>
 

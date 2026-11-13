@@ -8,12 +8,14 @@ import {
   useLookupBookingMutation,
 } from '@/features/booking-lookup/queries'
 import { useCountdown } from '@/hooks/use-countdown'
+import { useSavedBookings } from '@/hooks/use-saved-bookings'
 import { errorMessage, toApiError } from '@/lib/api/errors'
 import { ERROR_COPY, rateLimitedMessage } from '@/lib/copy'
 import { normalizePhone } from '@/lib/format'
 
 import { BookingResult } from './booking-result'
 import { LookupForm } from './lookup-form'
+import { SavedBookingsList } from './saved-bookings-list'
 
 import type { LookupValues } from '@/features/booking-lookup/schemas'
 import type { Booking } from '@/lib/api/types'
@@ -28,6 +30,8 @@ export function BookingLookup() {
   const lookup = useLookupBookingMutation()
   const cancel = useCancelBookingMutation()
   const isBlocked = secondsLeft > 0
+  const saved = useSavedBookings()
+  const [prefill, setPrefill] = useState<{ code: string; at: number } | null>(null)
 
   /** Every failure to find a booking reads the same: a mismatch must not reveal what exists. */
   function explain(error: unknown) {
@@ -49,7 +53,9 @@ export function BookingLookup() {
     const code = values.booking_code.trim().toUpperCase()
     const phone = normalizePhone(values.phone) ?? values.phone
     try {
-      setFound({ code, phone, booking: await lookup.mutateAsync({ code, phone }) })
+      const booking = await lookup.mutateAsync({ code, phone })
+      setFound({ code, phone, booking })
+      saved.add({ code, service_name: booking.service.name, start_at: booking.start_at })
     } catch (error) {
       explain(error)
     }
@@ -94,7 +100,13 @@ export function BookingLookup() {
         </p>
       </div>
 
-      <LookupForm onSubmit={search} isBlocked={isBlocked} />
+      <SavedBookingsList
+        items={saved.items}
+        onPick={(code) => setPrefill({ code, at: Date.now() })}
+        onRemove={saved.remove}
+      />
+
+      <LookupForm onSubmit={search} isBlocked={isBlocked} prefill={prefill} />
 
       <div aria-live="polite" className="space-y-4">
         {isBlocked ? (

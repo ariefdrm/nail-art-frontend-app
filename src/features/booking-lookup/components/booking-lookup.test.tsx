@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { Toaster } from '@/components/ui/sonner'
 import { makeBooking } from '@/test/fixtures'
@@ -45,6 +45,8 @@ async function search(
 }
 
 describe('BookingLookup', () => {
+  beforeEach(() => localStorage.clear())
+
   it('finds a booking with an upper-cased code and a normalized phone number', async () => {
     const seen = serveLookup(makeBooking({ status: 'confirmed' }))
     const user = userEvent.setup()
@@ -180,7 +182,7 @@ describe('BookingLookup', () => {
     },
   )
 
-  it('keeps the code and phone number out of web storage', async () => {
+  it('remembers the code on this device but never the phone number', async () => {
     serveLookup(makeBooking())
     const user = userEvent.setup()
     await render()
@@ -189,7 +191,40 @@ describe('BookingLookup', () => {
     await screen.findByText('Gel Polish')
 
     const stored = JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage })
-    expect(stored).not.toContain(CODE)
+    expect(stored).toContain(CODE)
     expect(stored).not.toContain('81234567890')
+    expect(stored).not.toContain('0812')
+  })
+
+  it('fills the code from a saved booking and moves focus to the phone field', async () => {
+    localStorage.setItem(
+      'np.bookings',
+      JSON.stringify([
+        { code: CODE, service_name: 'Gel Polish', start_at: '2026-11-12T10:00:00+07:00' },
+      ]),
+    )
+    const user = userEvent.setup()
+    await render()
+
+    await user.click(screen.getByRole('button', { name: new RegExp(`^${CODE}`) }))
+
+    expect(screen.getByLabelText('Kode booking')).toHaveValue(CODE)
+    expect(screen.getByLabelText('Nomor HP')).toHaveFocus()
+  })
+
+  it('removes a saved code from the list', async () => {
+    localStorage.setItem(
+      'np.bookings',
+      JSON.stringify([
+        { code: CODE, service_name: 'Gel Polish', start_at: '2026-11-12T10:00:00+07:00' },
+      ]),
+    )
+    const user = userEvent.setup()
+    await render()
+
+    await user.click(screen.getByRole('button', { name: `Hapus kode ${CODE} dari perangkat ini` }))
+
+    expect(screen.queryByText('Pesanan di perangkat ini')).not.toBeInTheDocument()
+    expect(localStorage.getItem('np.bookings')).toBe('[]')
   })
 })

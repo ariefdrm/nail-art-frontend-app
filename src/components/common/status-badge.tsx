@@ -5,18 +5,32 @@ import { cn } from '@/lib/utils'
 
 import type { BookingStatus } from '@/lib/api/types'
 
-/** Shape and icon carry the status, not color (DESIGN_SPEC.md section 6). */
+/** Color reinforces the status; icon, label and border style still carry it on their own. */
 const STATUS_STYLE: Record<BookingStatus, { icon: typeof Clock; className: string }> = {
-  pending: { icon: Clock, className: 'border border-foreground bg-background text-foreground' },
-  confirmed: { icon: CircleCheck, className: 'bg-primary text-primary-foreground' },
-  completed: { icon: CheckCheck, className: 'bg-secondary text-foreground' },
+  pending: {
+    icon: Clock,
+    className:
+      'border bg-status-pending text-status-pending-foreground border-status-pending-foreground/30',
+  },
+  confirmed: {
+    icon: CircleCheck,
+    className:
+      'border bg-status-confirmed text-status-confirmed-foreground border-status-confirmed-foreground/30',
+  },
+  completed: {
+    icon: CheckCheck,
+    className:
+      'border bg-status-completed text-status-completed-foreground border-status-completed-foreground/30',
+  },
   cancelled: {
     icon: CircleX,
-    className: 'border border-dashed border-input bg-background text-muted-foreground',
+    className:
+      'border border-dashed bg-status-cancelled text-status-cancelled-foreground border-status-cancelled-foreground/50',
   },
   no_show: {
     icon: UserX,
-    className: 'border border-dashed border-foreground bg-muted text-foreground',
+    className:
+      'border border-dashed bg-status-no-show text-status-no-show-foreground border-status-no-show-foreground/50',
   },
 }
 

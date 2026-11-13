@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Search } from 'lucide-react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { FormField } from '@/components/common/form-field'
@@ -12,14 +13,23 @@ import type { LookupValues } from '@/features/booking-lookup/schemas'
 type LookupFormProps = {
   onSubmit: (values: LookupValues) => Promise<void>
   isBlocked: boolean
+  /** A code chosen elsewhere on the page; `at` changes on every pick so the same code can be re-picked. */
+  prefill?: { code: string; at: number } | null
 }
 
-export function LookupForm({ onSubmit, isBlocked }: LookupFormProps) {
+export function LookupForm({ onSubmit, isBlocked, prefill }: LookupFormProps) {
   const form = useForm<LookupValues>({
     resolver: zodResolver(lookupSchema),
     defaultValues: { booking_code: '', phone: '' },
   })
   const { errors, isSubmitting } = form.formState
+  const { setValue, setFocus } = form
+
+  useEffect(() => {
+    if (!prefill) return
+    setValue('booking_code', prefill.code, { shouldValidate: true })
+    setFocus('phone')
+  }, [prefill, setValue, setFocus])
 
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

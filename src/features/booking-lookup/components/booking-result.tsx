@@ -1,8 +1,10 @@
 import { TriangleAlert } from 'lucide-react'
 
 import { BookingCode } from '@/components/common/booking-code'
+import { DownloadReceiptButton } from '@/components/common/download-receipt-button'
 import { StatusBadge } from '@/components/common/status-badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { receiptFromBooking } from '@/lib/booking-receipt'
 import { formatDate, formatRupiah, formatTime } from '@/lib/format'
 
 import { CancelBookingDialog } from './cancel-booking-dialog'
@@ -60,14 +62,17 @@ export function BookingResult({ booking, isCancelling, isBlocked, onCancel }: Bo
         </Alert>
       ) : null}
 
-      {canCancel ? (
-        <CancelBookingDialog
-          bookingCode={booking.booking_code}
-          isPending={isCancelling}
-          isBlocked={isBlocked}
-          onConfirm={onCancel}
-        />
-      ) : null}
+      <div className="flex flex-wrap gap-3">
+        <DownloadReceiptButton receipt={receiptFromBooking(booking)} />
+        {canCancel ? (
+          <CancelBookingDialog
+            bookingCode={booking.booking_code}
+            isPending={isCancelling}
+            isBlocked={isBlocked}
+            onConfirm={onCancel}
+          />
+        ) : null}
+      </div>
     </section>
   )
 }

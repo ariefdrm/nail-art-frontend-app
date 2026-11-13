@@ -125,6 +125,7 @@ Prioritas: **P0** wajib untuk prototipe yang bisa didemokan, **P1** penting, **P
 - Langkah 3: nama (wajib, maks 100), nomor HP (wajib; menerima `08...`, `62...`, `+62...`; tampilkan hasil normalisasi `+62...`; hanya nomor seluler Indonesia valid), catatan (opsional, maks 500), tautan gambar referensi (opsional, `http(s)`, maks 2048).
 - Langkah 4: ringkasan (layanan, tanggal-jam WIB, durasi, harga, artist "Ditentukan studio" atau nama), tombol "Kirim pemesanan" -> `POST /bookings` dengan `start_at` persis seperti dikembalikan availability.
 - Setelah `201`: pindah ke `/pesan/berhasil` yang menampilkan **kode booking** besar, tombol salin, ringkasan, status "Menunggu konfirmasi", dan penjelasan bahwa pemilik akan mengonfirmasi. Tampilkan peringatan: "Simpan kode ini bersama nomor HP Anda untuk mengecek atau membatalkan pesanan." Data hanya ada di state navigasi; me-refresh halaman menampilkan arahan ke `/cek-booking`.
+- **Bukti booking:** tombol "Unduh bukti" membuat gambar PNG (kode, status, layanan, jadwal, artist, total) di peramban, tanpa backend. Kode booking juga diingat di perangkat itu (`localStorage` `np.bookings`, maks. 5; **nomor HP tidak pernah disimpan**).
 - Kriteria penerimaan:
   - `409 SLOT_UNAVAILABLE` saat kirim: kembali ke langkah 2, ambil ulang slot, tampilkan pesan "Jadwal tersebut baru saja terisi. Silakan pilih jam lain." Data diri tidak hilang.
   - `422`: pesan per kolom (lihat bagian 8). `404` layanan: kembali ke langkah 1.
@@ -134,6 +135,7 @@ Prioritas: **P0** wajib untuk prototipe yang bisa didemokan, **P1** penting, **P
 
 **FE-04 Cek status dan batalkan (P0)**
 
+- Daftar "Pesanan di perangkat ini" menampilkan kode yang pernah dipesan atau dicari; memilih satu mengisi kolom kode, nomor HP tetap diisi pengguna. Hasil pencarian punya tombol "Unduh bukti". Pemulihan kode tanpa kode atau di perangkat lain tidak didukung: itu butuh backend (mis. OTP atau pengiriman WhatsApp) dan sengaja belum dibuat.
 - Formulir kode booking (format `NP-YYYYMMDD-XXXX`, tidak peka huruf besar-kecil) + nomor HP -> `GET /bookings/{code}?phone=`.
 - Hasil: status (lencana), layanan, tanggal-jam WIB, artist, harga, kode. Bila `schedule_conflict = true`: pita informasi "Jadwal Anda terpengaruh perubahan jadwal studio. Pemilik akan menghubungi Anda."
 - Tombol "Batalkan pemesanan" hanya untuk `pending` dan `confirmed` -> dialog konfirmasi dengan alasan opsional (maks 255) -> `PATCH /bookings/{code}/cancel`.
@@ -414,14 +416,15 @@ Lihat `CLAUDE.md` (Definition of done). Ringkasnya: kriteria requirement terpenu
 
 ### 14.2 Keputusan yang perlu dikonfirmasi
 
-| ID   | Pertanyaan                                                    | Default yang dipakai dokumen ini                                                                                              |
-| ---- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Q-05 | Penyimpanan token penyegar                                    | **Diputuskan 11 Nov 2026:** cookie `HttpOnly` dari backend, token akses di memori (bukan `localStorage`, bukan BFF)           |
-| Q-07 | Foto layanan: tetap berwarna di antarmuka hitam putih?        | Ya, antarmuka monokrom, foto produk berwarna alami (lihat `DESIGN_SPEC.md`, bagian 8)                                         |
-| Q-08 | Boleh ada satu warna fungsional (merah) hanya untuk galat?    | Tidak; galat dibedakan dengan ikon, teks, dan batas tebal                                                                     |
-| Q-09 | Penamaan URL Indonesia (`/layanan`, `/pesan`)                 | Ya                                                                                                                            |
-| Q-10 | Apakah staf boleh melihat dashboard?                          | Ya (backend tidak membatasi)                                                                                                  |
-| Q-11 | Bentuk deploy frontend dan API (menentukan `SameSite` cookie) | Satu origin lewat reverse proxy atau subdomain dari situs yang sama (`SameSite=Lax`); hindari situs berbeda (`SameSite=None`) |
+| ID   | Pertanyaan                                                    | Default yang dipakai dokumen ini                                                                                                                                                    |
+| ---- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q-05 | Penyimpanan token penyegar                                    | **Diputuskan 11 Nov 2026:** cookie `HttpOnly` dari backend, token akses di memori (bukan `localStorage`, bukan BFF)                                                                 |
+| Q-07 | Foto layanan: tetap berwarna di antarmuka hitam putih?        | Ya, antarmuka monokrom, foto produk berwarna alami (lihat `DESIGN_SPEC.md`, bagian 8)                                                                                               |
+| Q-08 | Boleh ada warna fungsional?                                   | **Diubah 13 Nov 2026:** hanya lencana status booking yang berwarna (token `--status-*` di `styles.css`); galat tetap dibedakan dengan ikon, teks, dan batas tebal                   |
+| Q-09 | Penamaan URL Indonesia (`/layanan`, `/pesan`)                 | Ya                                                                                                                                                                                  |
+| Q-10 | Apakah staf boleh melihat dashboard?                          | Ya (backend tidak membatasi)                                                                                                                                                        |
+| Q-11 | Bentuk deploy frontend dan API (menentukan `SameSite` cookie) | Satu origin lewat reverse proxy atau subdomain dari situs yang sama (`SameSite=Lax`); hindari situs berbeda (`SameSite=None`)                                                       |
+| Q-12 | Pelanggan lupa kode booking                                   | **Diputuskan 13 Nov 2026:** bukti PNG dibuat di frontend dan kode diingat di perangkat (tanpa nomor HP); mencari kode hanya dari nomor HP ditolak karena membuka pesanan orang lain |
 
 ### 14.3 Risiko
 

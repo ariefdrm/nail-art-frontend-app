@@ -1,11 +1,14 @@
 import { screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
+import { listSavedBookings } from '@/lib/saved-bookings'
 import { renderWithRouter } from '@/test/render-with-router'
 
 import { BookingSuccess } from './booking-success'
 
 describe('BookingSuccess', () => {
+  beforeEach(() => localStorage.clear())
+
   it('shows the booking code, status and the next step', async () => {
     await renderWithRouter(
       <BookingSuccess
@@ -24,6 +27,8 @@ describe('BookingSuccess', () => {
     expect(screen.getByText('Menunggu konfirmasi')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Salin' })).toBeInTheDocument()
     expect(screen.getByText(/Rp150\.000/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Unduh bukti' })).toBeInTheDocument()
+    expect(listSavedBookings().map((item) => item.code)).toEqual(['NP-20261112-A7K2'])
   })
 
   it('points to the lookup page when there is nothing to show (page reloaded)', async () => {
