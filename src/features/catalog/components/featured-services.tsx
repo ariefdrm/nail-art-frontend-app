@@ -3,6 +3,8 @@ import { Sparkles } from 'lucide-react'
 
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
+import { Reveal } from '@/components/common/reveal'
+import { buttonVariants } from '@/components/ui/button'
 import { useServicesQuery } from '@/lib/api/public-queries'
 
 import { ServiceCard } from './service-card'
@@ -16,11 +18,19 @@ export function FeaturedServices() {
 
   return (
     <section className="py-16 md:py-24" aria-labelledby="featured-title">
-      <div className="mb-8 flex items-baseline justify-between gap-4">
-        <h2 id="featured-title" className="text-2xl font-semibold tracking-tight">
-          Layanan pilihan
-        </h2>
-        <Link to="/layanan" className="text-sm font-medium underline-offset-4 hover:underline">
+      <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2
+            id="featured-title"
+            className="font-display text-3xl font-medium tracking-tight md:text-5xl"
+          >
+            Layanan pilihan
+          </h2>
+          <p className="mt-3 max-w-prose text-muted-foreground">
+            Durasi dan harga tertera jelas sebelum Anda memesan.
+          </p>
+        </div>
+        <Link to="/layanan" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
           Lihat semua layanan
         </Link>
       </div>
@@ -37,16 +47,18 @@ export function FeaturedServices() {
         />
       ) : null}
       {query.isSuccess && query.data.length > 0 ? (
-        <ServiceGrid>
-          {query.data.slice(0, FEATURED_COUNT).map((service) => (
+        <ServiceGrid className="lg:[&>li:nth-child(3n+2)]:mt-12">
+          {query.data.slice(0, FEATURED_COUNT).map((service, index) => (
             <li key={service.id}>
-              <ServiceCard service={service}>
-                {(content, className) => (
-                  <Link to="/layanan" search={{ layanan: service.id }} className={className}>
-                    {content}
-                  </Link>
-                )}
-              </ServiceCard>
+              <Reveal index={index % 3}>
+                <ServiceCard service={service}>
+                  {(content, className) => (
+                    <Link to="/layanan" search={{ layanan: service.id }} className={className}>
+                      {content}
+                    </Link>
+                  )}
+                </ServiceCard>
+              </Reveal>
             </li>
           ))}
         </ServiceGrid>

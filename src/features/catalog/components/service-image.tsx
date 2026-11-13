@@ -24,7 +24,7 @@ export function ServiceImage({ service, className }: ServiceImageProps) {
           src={service.image_url}
           alt={service.name}
           loading="lazy"
-          className="size-full object-cover"
+          className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
       ) : (
         <span

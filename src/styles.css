@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/inter';
+@import '@fontsource-variable/bodoni-moda';
 
 * {
   box-sizing: border-box;
@@ -19,6 +20,7 @@ body {
 
 @theme inline {
   --font-heading: var(--font-sans);
+  --font-display: 'Bodoni Moda Variable', 'Didot', 'Times New Roman', serif;
   --font-sans: 'Inter Variable', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -153,4 +155,124 @@ body {
 }
 .rise-4 {
   animation-delay: 240ms;
+}
+
+/* Luxury motion (home page). One easing for all of it; reduced-motion users get the end state. */
+:root {
+  --ease-luxe: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Headline lines slide up from behind a mask. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+@keyframes line-up {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+.line-up {
+  display: block;
+  animation: line-up 1000ms var(--ease-luxe) both;
+  animation-delay: calc(var(--i, 0) * 110ms + 100ms);
+}
+
+/* Scroll reveal: <Reveal> flips data-visible once the element enters the viewport. */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 800ms var(--ease-luxe),
+    transform 800ms var(--ease-luxe);
+  transition-delay: calc(var(--i, 0) * 100ms);
+}
+.reveal[data-visible='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* A rule that draws itself from the left when its section is revealed. */
+.draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1100ms var(--ease-luxe);
+  transition-delay: calc(var(--i, 0) * 140ms);
+}
+[data-visible='true'] .draw {
+  transform: scaleX(1);
+}
+
+/* Items that appear one after another when their content changes. */
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.stagger-in {
+  animation: stagger-in 450ms var(--ease-luxe) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* Endless strip of service names. */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 45s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+.marquee {
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+
+/* Black panel with a soft light that follows the pointer (set by <Spotlight>). */
+.spotlight {
+  background-image: radial-gradient(
+    28rem circle at var(--x, 70%) var(--y, 0%),
+    color-mix(in oklab, var(--primary-foreground) 16%, transparent),
+    transparent 60%
+  );
+}
+
+/* FAQ answers open with a height transition where the browser supports it. */
+.faq-item {
+  interpolate-size: allow-keywords;
+}
+.faq-item::details-content {
+  height: 0;
+  overflow: clip;
+  transition:
+    height 400ms var(--ease-luxe),
+    content-visibility 400ms allow-discrete;
+}
+.faq-item[open]::details-content {
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .draw {
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
 }
