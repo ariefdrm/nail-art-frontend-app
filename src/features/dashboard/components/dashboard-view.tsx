@@ -1,17 +1,16 @@
 import { TriangleAlert } from 'lucide-react'
 
 import { ErrorState } from '@/components/common/error-state'
-import { PageHeader } from '@/components/common/page-header'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSummaryQuery } from '@/features/dashboard/queries'
 import { presetRange, rangeProblem } from '@/features/dashboard/ranges'
-import { formatDayRange, formatMinutes, formatPercent, formatRupiah, todayWib } from '@/lib/format'
+import { formatDayRange, todayWib } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 import { RangePicker } from './range-picker'
-import { StatCard } from './stat-card'
 import { StatusBreakdown } from './status-breakdown'
+import { MetricRows, RevenueFigure } from './summary-ledger'
 
 import type { SummaryRange } from '@/features/dashboard/api'
 
@@ -33,13 +32,17 @@ export function DashboardView({ adminName, search, onSearchChange }: DashboardVi
   const query = useSummaryQuery(range, problem === null)
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title="Dashboard"
-        description={`Halo, ${adminName}. Ringkasan ${formatDayRange(range.dari, range.sampai)}.`}
-      />
-
-      <RangePicker range={range} onChange={(next) => onSearchChange(next)} />
+    <div className="space-y-10">
+      <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
+        <div>
+          <h1 className="text-sm font-medium">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Halo, {adminName}</p>
+          <p className="mt-4 font-display text-4xl leading-tight font-medium tracking-tight md:text-5xl">
+            {formatDayRange(range.dari, range.sampai)}
+          </p>
+        </div>
+        <RangePicker range={range} onChange={(next) => onSearchChange(next)} />
+      </header>
 
       {problem ? (
         <Alert variant="destructive" role="alert">
@@ -50,13 +53,15 @@ export function DashboardView({ adminName, search, onSearchChange }: DashboardVi
 
       {problem === null && query.isPending ? (
         <div
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16"
           aria-busy="true"
           aria-label="Memuat ringkasan"
         >
-          {Array.from({ length: 5 }, (_, index) => (
-            <Skeleton key={index} className="h-36 w-full" />
-          ))}
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-20 w-full max-w-md" />
+          </div>
+          <Skeleton className="h-64 w-full" />
         </div>
       ) : null}
       {problem === null && query.isError ? (
@@ -65,46 +70,13 @@ export function DashboardView({ adminName, search, onSearchChange }: DashboardVi
 
       {problem === null && query.isSuccess ? (
         <div
-          className={cn('space-y-10', query.isPlaceholderData && 'opacity-60')}
+          className={cn('space-y-14', query.isPlaceholderData && 'opacity-60')}
           aria-busy={query.isPlaceholderData}
           aria-live="polite"
         >
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <StatCard
-              label="Total reservasi"
-              value={String(query.data.total_bookings)}
-              note="semua status"
-            />
-            <StatCard
-              label="Pendapatan"
-              value={formatRupiah(query.data.revenue_completed)}
-              note="dari reservasi selesai"
-            />
-            <StatCard
-              label="Rasio online"
-              value={
-                query.data.online_booking_ratio === null
-                  ? null
-                  : formatPercent(query.data.online_booking_ratio)
-              }
-              note="dari semua reservasi"
-            />
-            <StatCard
-              label="Tidak hadir"
-              value={
-                query.data.no_show_rate === null ? null : formatPercent(query.data.no_show_rate)
-              }
-              note="dari yang selesai atau tidak hadir"
-            />
-            <StatCard
-              label="Rata-rata konfirmasi"
-              value={
-                query.data.avg_confirmation_minutes === null
-                  ? null
-                  : formatMinutes(query.data.avg_confirmation_minutes)
-              }
-              note="reservasi online sampai dikonfirmasi"
-            />
+          <div className="grid items-start gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+            <RevenueFigure summary={query.data} />
+            <MetricRows summary={query.data} />
           </div>
           <StatusBreakdown byStatus={query.data.by_status} />
         </div>

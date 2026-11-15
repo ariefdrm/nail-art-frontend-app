@@ -404,24 +404,27 @@ Panel detail (sheet kanan):
 
 ### 10.7 Dashboard `/admin`
 
+Disusun sebagai buku catatan studio, bukan kartu: satu angka utama (pendapatan, `font-display`), metrik lain sebagai baris bergaris, dan rincian status sebagai satu batang bertumpuk berwarna token status (`--status-*`) dengan daftar di bawahnya. Rentang tanggal juga `font-display`.
+
 ```
- Dashboard                  [7 hari] [30 hari] [Bulan ini] [Kustom ▾]
-
- ┌ Total reservasi ┐ ┌ Pendapatan ┐ ┌ Rasio online ┐ ┌ Tidak hadir ┐
- │ 34              │ │ Rp4.250.000│ │ 72%          │ │ 8%          │
- │ 26 – 30 Nov     │ │ selesai    │ │ dari semua   │ │ dari yang   │
- └─────────────────┘ └────────────┘ └──────────────┘ └─────────────┘
- ┌ Rata-rata konfirmasi ┐
- │ 18 menit             │      (— dan "Belum ada data" bila null)
- └──────────────────────┘
-
+ Dashboard                                    [7 hari][30 hari][Bulan ini][Bulan lalu][Kustom]
+ Halo, Siti
+ 6 - 12 November 2026   (Bodoni)              [dari] - [sampai]
+ ────────────────────────────────────────────────────────────────
+ Pendapatan                        │ Total reservasi                34
+ Rp4.250.000   (Bodoni, 7xl)       │ ──────────────────────────────────
+ dari 10 reservasi selesai         │ Rasio online                  72%
+                                   │ Tidak hadir                  7,5%
+                                   │ Rata-rata konfirmasi      18 menit
+ ────────────────────────────────────────────────────────────────
  Rincian status
- Terkonfirmasi  ▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮ 16
- Selesai        ▮▮▮▮▮▮▮▮▮▮ 10
- Menunggu       ▮▮▮ 3
- Dibatalkan     ▮▮ 3
- Tidak hadir    ▮ 2
+ ▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮▮ (satu batang, segmen per status)
+ ◷ Menunggu konfirmasi    9%    3
+ ✓ Terkonfirmasi         47%   16
+ …
 ```
+
+Nilai `null` tampil "—" dengan catatan "Belum ada data", tidak pernah 0%. Di seluler kolom ditumpuk: pendapatan, baris metrik, rincian.
 
 ### 10.8 Jadwal `/admin/jadwal`
 

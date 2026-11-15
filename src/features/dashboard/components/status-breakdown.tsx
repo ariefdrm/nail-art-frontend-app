@@ -1,54 +1,71 @@
 import { STATUS_ICON } from '@/components/common/status-badge'
 import { STATUS_LABEL } from '@/lib/copy'
+import { formatPercent } from '@/lib/format'
 
 import type { Summary } from '@/features/dashboard/api'
 import type { BookingStatus } from '@/lib/api/types'
 
+/** Follows the life of a booking, from waiting to finished, then the ones that fell away. */
 const ORDER: readonly BookingStatus[] = [
+  'pending',
   'confirmed',
   'completed',
-  'pending',
   'cancelled',
   'no_show',
 ]
 
-/** Greys from the chart tokens; the label, icon and count carry the meaning, not the shade. */
-const BAR: Record<BookingStatus, string> = {
-  confirmed: 'bg-chart-1',
-  completed: 'bg-chart-2',
-  pending: 'bg-chart-3',
-  cancelled: 'bg-chart-4',
-  no_show: 'bg-chart-5',
+/** Same tokens as the status badges, so a segment matches the badge a booking wears. */
+const SEGMENT: Record<BookingStatus, string> = {
+  pending: 'bg-status-pending-foreground',
+  confirmed: 'bg-status-confirmed-foreground',
+  completed: 'bg-status-completed-foreground',
+  cancelled: 'bg-status-cancelled-foreground',
+  no_show: 'bg-status-no-show-foreground',
 }
 
 type StatusBreakdownProps = { byStatus: Summary['by_status'] }
 
 export function StatusBreakdown({ byStatus }: StatusBreakdownProps) {
-  const largest = Math.max(1, ...ORDER.map((status) => byStatus[status]))
+  const total = ORDER.reduce((sum, status) => sum + byStatus[status], 0)
 
   return (
-    <section aria-labelledby="breakdown-title" className="space-y-4">
-      <h2 id="breakdown-title" className="text-2xl font-semibold tracking-tight">
+    <section aria-labelledby="breakdown-title" className="space-y-5">
+      <h2 id="breakdown-title" className="font-display text-3xl font-medium tracking-tight">
         Rincian status
       </h2>
-      <ul className="space-y-3">
+
+      {/* The bar is a summary of the list below it, so assistive technology skips it. */}
+      <div aria-hidden className="flex h-3 gap-0.5 overflow-hidden rounded-full bg-muted">
+        {total > 0
+          ? ORDER.filter((status) => byStatus[status] > 0).map((status) => (
+              <span
+                key={status}
+                className={`block h-full transition-[width] duration-700 ${SEGMENT[status]}`}
+                style={{ width: `${(byStatus[status] / total) * 100}%` }}
+              />
+            ))
+          : null}
+      </div>
+
+      {total === 0 ? (
+        <p className="text-muted-foreground">Belum ada reservasi pada rentang ini.</p>
+      ) : null}
+
+      <ul className="divide-y divide-border border-y border-border">
         {ORDER.map((status) => {
           const Icon = STATUS_ICON[status]
           const count = byStatus[status]
           return (
-            <li key={status} className="grid grid-cols-[9rem_1fr_3rem] items-center gap-3 text-sm">
-              <span className="flex items-center gap-2">
-                <Icon className="size-4 shrink-0" aria-hidden />
-                {STATUS_LABEL[status]}
-              </span>
-              <span className="h-3 rounded-full bg-muted" aria-hidden>
-                {/* Bar length is data, so it cannot be a class; the width is a share of the largest. */}
-                <span
-                  className={`block h-full rounded-full ${BAR[status]}`}
-                  style={{ width: `${(count / largest) * 100}%` }}
-                />
-              </span>
-              <span className="text-right font-medium tabular-nums">{count}</span>
+            <li key={status} className="flex items-center gap-3 py-3 text-sm">
+              <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${SEGMENT[status]}`} />
+              <Icon className="size-4 shrink-0" aria-hidden />
+              <span className="flex-1">{STATUS_LABEL[status]}</span>
+              {total > 0 ? (
+                <span className="text-muted-foreground tabular-nums">
+                  {formatPercent(count / total)}
+                </span>
+              ) : null}
+              <span className="w-10 text-right text-base font-semibold tabular-nums">{count}</span>
             </li>
           )
         })}

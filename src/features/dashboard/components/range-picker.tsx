@@ -21,7 +21,7 @@ export function RangePicker({ range, onChange }: RangePickerProps) {
   const current = activePreset(range, today)
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 lg:flex lg:flex-col lg:items-end">
       <SegmentedControl<Preset>
         label="Rentang waktu"
         value={current}

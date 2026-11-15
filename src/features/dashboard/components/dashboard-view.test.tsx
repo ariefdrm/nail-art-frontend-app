@@ -47,6 +47,7 @@ describe('DashboardView', () => {
     expect(screen.getByText('7,5%')).toBeInTheDocument()
     expect(screen.getByText('18 menit')).toBeInTheDocument()
     expect(screen.getByText(/Halo, Siti/)).toBeInTheDocument()
+    expect(screen.getByText('dari 10 reservasi selesai')).toBeInTheDocument()
   })
 
   it('breaks the reservations down by status with a count each', async () => {
@@ -66,6 +67,7 @@ describe('DashboardView', () => {
         .closest('li')
       expect(row).toHaveTextContent(count as string)
     }
+    expect(within(list).getByText('Terkonfirmasi').closest('li')).toHaveTextContent('47,1%')
   })
 
   it('shows a dash and "Belum ada data" for missing rates, never 0%', async () => {
@@ -85,6 +87,7 @@ describe('DashboardView', () => {
     expect(screen.queryByText('0%')).not.toBeInTheDocument()
     expect(screen.getAllByText('—')).toHaveLength(3)
     expect(screen.getByText('Rp0')).toBeInTheDocument()
+    expect(screen.getByText('Belum ada reservasi pada rentang ini.')).toBeInTheDocument()
   })
 
   it('keeps a real zero rate as 0%', async () => {
