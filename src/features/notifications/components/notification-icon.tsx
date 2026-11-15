@@ -1,21 +1,44 @@
 import { BellRing, CalendarPlus, CalendarX, Hourglass, TriangleAlert } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
+
 import type { Notification } from '@/lib/api/types'
 
-const ICON: Record<Notification['type'], typeof BellRing> = {
-  new_booking: CalendarPlus,
-  booking_cancelled: CalendarX,
-  unconfirmed_reminder: Hourglass,
-  upcoming_reminder: BellRing,
-  schedule_conflict: TriangleAlert,
+type Kind = { icon: typeof BellRing; className: string }
+
+/**
+ * Color follows the context, borrowing the booking status tokens: yellow needs the owner's
+ * answer, red is something lost or at risk, blue is only a heads-up. The icon differs per kind,
+ * so color is never the only signal.
+ */
+const KIND: Record<Notification['type'], Kind> = {
+  new_booking: {
+    icon: CalendarPlus,
+    className: 'bg-status-pending text-status-pending-foreground',
+  },
+  unconfirmed_reminder: {
+    icon: Hourglass,
+    className: 'bg-status-pending text-status-pending-foreground',
+  },
+  booking_cancelled: {
+    icon: CalendarX,
+    className: 'bg-status-cancelled text-status-cancelled-foreground',
+  },
+  schedule_conflict: {
+    icon: TriangleAlert,
+    className: 'bg-status-cancelled text-status-cancelled-foreground',
+  },
+  upcoming_reminder: {
+    icon: BellRing,
+    className: 'bg-status-completed text-status-completed-foreground',
+  },
 }
 
-/** A different icon per kind, inside a 32px outlined circle (DESIGN_SPEC section 6). */
 export function NotificationIcon({ type }: { type: Notification['type'] }) {
-  const Icon = ICON[type]
+  const { icon: Icon, className } = KIND[type]
   return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border">
-      <Icon className="size-4" aria-hidden />
+    <span className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', className)}>
+      <Icon className="size-5" aria-hidden />
     </span>
   )
 }

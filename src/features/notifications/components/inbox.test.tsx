@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -65,7 +65,8 @@ describe('Inbox', () => {
 
     expect(await screen.findByText('Reservasi baru')).toBeInTheDocument()
     expect(screen.getByText('Reservasi dibatalkan')).toBeInTheDocument()
-    expect(screen.getAllByText('Belum dibaca')).toHaveLength(1)
+    const lists = screen.getAllByRole('list')
+    expect(lists.flatMap((list) => within(list).queryAllByText('Belum dibaca'))).toHaveLength(1)
     expect(screen.getAllByText('2 menit yang lalu').length).toBeGreaterThan(0)
   })
 
@@ -179,7 +180,7 @@ describe('Inbox', () => {
     await user.click(screen.getByRole('button', { name: 'Berikutnya' }))
     expect(onSearchChange).toHaveBeenLastCalledWith({ halaman: 3 })
 
-    await user.click(screen.getByRole('switch', { name: 'Hanya yang belum dibaca' }))
+    await user.click(screen.getByRole('button', { name: 'Belum dibaca' }))
     expect(onSearchChange).toHaveBeenLastCalledWith({ belum: true, halaman: undefined })
   })
 

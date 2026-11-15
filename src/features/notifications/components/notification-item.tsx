@@ -8,12 +8,16 @@ import { NotificationIcon } from './notification-icon'
 import type { Notification } from '@/lib/api/types'
 
 const ROW =
-  'flex w-full items-start gap-3 border-b border-border px-4 py-3 text-left outline-none last:border-b-0 hover:bg-muted/50 focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset'
+  'flex w-full items-start gap-4 border-b border-l-4 border-b-border px-4 py-4 text-left outline-none last:border-b-0 hover:bg-muted/50 focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset'
 
 type NotificationItemProps = {
   notification: Notification
   /** Called when the item is opened, so an unread one can be marked read. */
   onOpen: (notification: Notification) => void
+}
+
+function rowEdge(isUnread: boolean) {
+  return isUnread ? 'border-l-primary bg-muted/40' : 'border-l-transparent'
 }
 
 function Content({ notification }: { notification: Notification }) {
@@ -51,7 +55,7 @@ export function NotificationItem({ notification, onOpen }: NotificationItemProps
         <Link
           to="/admin/reservasi"
           search={{ id: notification.booking_id }}
-          className={ROW}
+          className={cn(ROW, rowEdge(!notification.read))}
           onClick={() => onOpen(notification)}
         >
           <Content notification={notification} />
@@ -62,11 +66,15 @@ export function NotificationItem({ notification, onOpen }: NotificationItemProps
   return (
     <li>
       {notification.read ? (
-        <div className={cn(ROW, 'hover:bg-transparent')}>
+        <div className={cn(ROW, rowEdge(false), 'hover:bg-transparent')}>
           <Content notification={notification} />
         </div>
       ) : (
-        <button type="button" className={ROW} onClick={() => onOpen(notification)}>
+        <button
+          type="button"
+          className={cn(ROW, rowEdge(true))}
+          onClick={() => onOpen(notification)}
+        >
           <Content notification={notification} />
         </button>
       )}

@@ -3,11 +3,10 @@ import { toast } from 'sonner'
 
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
-import { PageHeader } from '@/components/common/page-header'
+import { SegmentedControl } from '@/components/common/segmented-control'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Switch } from '@/components/ui/switch'
+import { groupByDay } from '@/features/notifications/day-groups'
 import {
   useMarkAllReadMutation,
   useMarkReadMutation,
@@ -15,6 +14,7 @@ import {
   useUnreadCountQuery,
 } from '@/features/notifications/queries'
 import { errorMessage } from '@/lib/api/errors'
+import { todayWib } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 import { NotificationItem } from './notification-item'
@@ -51,44 +51,48 @@ export function Inbox({ search, onSearchChange }: InboxProps) {
   const items = query.data?.data ?? []
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <PageHeader
-        title="Notifikasi"
-        description="Pemberitahuan 30 hari terakhir. Status baca hanya berlaku untuk akun Anda."
-        actions={
-          <Button
-            type="button"
-            variant="outline"
-            disabled={unread === 0 || markAll.isPending}
-            onClick={readAll}
-          >
-            {markAll.isPending ? (
-              <Loader2 className="animate-spin" aria-hidden />
-            ) : (
-              <CheckCheck aria-hidden />
-            )}
-            Tandai semua dibaca
-          </Button>
+    <div className="max-w-3xl space-y-8">
+      <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+        <div>
+          <h1 className="text-sm font-medium">Notifikasi</h1>
+          <p className="mt-2 font-display text-4xl leading-tight font-medium tracking-tight md:text-5xl">
+            {unread > 0 ? `${unread} belum dibaca` : 'Semua sudah dibaca'}
+          </p>
+          <p className="mt-3 max-w-prose text-sm text-muted-foreground">
+            Pemberitahuan 30 hari terakhir. Status baca hanya berlaku untuk akun Anda.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={unread === 0 || markAll.isPending}
+          onClick={readAll}
+        >
+          {markAll.isPending ? (
+            <Loader2 className="animate-spin" aria-hidden />
+          ) : (
+            <CheckCheck aria-hidden />
+          )}
+          Tandai semua dibaca
+        </Button>
+      </header>
+
+      <SegmentedControl<'semua' | 'belum'>
+        label="Tampilkan"
+        value={onlyUnread ? 'belum' : 'semua'}
+        options={[
+          { value: 'semua', label: 'Semua' },
+          { value: 'belum', label: 'Belum dibaca' },
+        ]}
+        onChange={(next) =>
+          onSearchChange({ belum: next === 'belum' ? true : undefined, halaman: undefined })
         }
       />
-
-      <div className="flex items-center gap-3">
-        <Switch
-          id="only-unread"
-          checked={onlyUnread}
-          onCheckedChange={(checked) =>
-            onSearchChange({ belum: checked ? true : undefined, halaman: undefined })
-          }
-        />
-        <Label htmlFor="only-unread" className="text-sm">
-          Hanya yang belum dibaca
-        </Label>
-      </div>
 
       {query.isPending ? (
         <div className="space-y-2" aria-busy="true" aria-label="Memuat notifikasi">
           {[0, 1, 2, 3].map((key) => (
-            <Skeleton key={key} className="h-16 w-full" />
+            <Skeleton key={key} className="h-20 w-full" />
           ))}
         </div>
       ) : null}
@@ -110,20 +114,25 @@ export function Inbox({ search, onSearchChange }: InboxProps) {
 
       {items.length > 0 && meta ? (
         <div
-          className={cn('space-y-4', query.isPlaceholderData && 'opacity-60')}
+          className={cn('space-y-6', query.isPlaceholderData && 'opacity-60')}
           aria-live="polite"
         >
-          <ul className="overflow-hidden rounded-lg border border-border">
-            {items.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onOpen={(opened) => {
-                  if (!opened.read) markRead.mutate(opened.id)
-                }}
-              />
-            ))}
-          </ul>
+          {groupByDay(items, todayWib()).map((group) => (
+            <section key={group.day} aria-label={group.label} className="space-y-2">
+              <h2 className="text-sm font-medium text-muted-foreground">{group.label}</h2>
+              <ul className="overflow-hidden rounded-lg border border-border">
+                {group.items.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                    onOpen={(opened) => {
+                      if (!opened.read) markRead.mutate(opened.id)
+                    }}
+                  />
+                ))}
+              </ul>
+            </section>
+          ))}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground tabular-nums">
               Menampilkan {(meta.page - 1) * meta.per_page + 1} -{' '}
