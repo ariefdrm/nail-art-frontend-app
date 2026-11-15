@@ -6,6 +6,7 @@ import { addMonths, endOfWeek, startOfWeek, weekDays } from '@/lib/calendar-days
 import { addDaysWib, formatDayRange, formatMonthYear, todayWib } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
+import { CalendarLegend } from './calendar-legend'
 import { CalendarToolbar } from './calendar-toolbar'
 import { MonthGrid } from './month-grid'
 import { WeekGrid } from './week-grid'
@@ -73,6 +74,7 @@ export function ReservationCalendar({ search, onSearchChange }: ReservationCalen
                 : 'Tidak ada reservasi pada bulan ini.'}
             </p>
           ) : null}
+          <CalendarLegend />
           {scale === 'minggu' ? (
             <WeekGrid days={weekDays(anchor)} bookings={query.data} search={search} />
           ) : (

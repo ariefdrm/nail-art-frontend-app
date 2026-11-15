@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { Clock } from 'lucide-react'
 
 import { isSameMonth, monthGrid } from '@/lib/calendar-days'
 import { formatDayKey, formatWeekdayShort, todayWib, toWibDateString } from '@/lib/format'
@@ -38,6 +39,7 @@ export function MonthGrid({ anchor, bookings, search }: MonthGridProps) {
           {week.map((day) => {
             const items = byDay.get(day) ?? []
             const hidden = items.length - MAX_LINES
+            const pending = items.filter((booking) => booking.status === 'pending').length
             const weekSearch = { ...search, skala: 'minggu' as const, tanggal: day, id: undefined }
             return (
               <div
@@ -47,18 +49,30 @@ export function MonthGrid({ anchor, bookings, search }: MonthGridProps) {
                   !isSameMonth(day, anchor) && 'bg-muted/40 text-muted-foreground',
                 )}
               >
-                <Link
-                  to="/admin/reservasi"
-                  search={weekSearch}
-                  aria-label={`${formatDayKey(day)}, ${items.length} reservasi. Buka minggunya`}
-                  className={cn(
-                    'inline-flex size-7 items-center justify-center rounded-full text-sm font-medium tabular-nums outline-none',
-                    'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring',
-                    day === today && 'bg-primary text-primary-foreground hover:bg-primary',
-                  )}
-                >
-                  {Number(day.slice(8))}
-                </Link>
+                <div className="flex items-center justify-between gap-1">
+                  <Link
+                    to="/admin/reservasi"
+                    search={weekSearch}
+                    aria-label={`${formatDayKey(day)}, ${items.length} reservasi. Buka minggunya`}
+                    className={cn(
+                      'inline-flex size-7 items-center justify-center rounded-full text-sm font-medium tabular-nums outline-none',
+                      'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring',
+                      day === today && 'bg-primary text-primary-foreground hover:bg-primary',
+                    )}
+                  >
+                    {Number(day.slice(8))}
+                  </Link>
+                  {pending > 0 ? (
+                    <span
+                      role="img"
+                      aria-label={`${pending} menunggu konfirmasi`}
+                      className="inline-flex h-5 items-center gap-0.5 rounded-full border border-status-pending-foreground bg-status-pending px-1.5 text-xs font-semibold text-status-pending-foreground tabular-nums"
+                    >
+                      <Clock className="size-3" aria-hidden />
+                      {pending}
+                    </span>
+                  ) : null}
+                </div>
                 {items.length > 0 ? (
                   <span className="block text-xs font-medium tabular-nums sm:hidden">
                     {items.length}

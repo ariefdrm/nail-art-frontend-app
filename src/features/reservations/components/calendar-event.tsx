@@ -8,13 +8,22 @@ import { cn } from '@/lib/utils'
 import type { ReservationSearch } from '@/features/reservations/search'
 import type { Booking, BookingStatus } from '@/lib/api/types'
 
-/** Same idea as the status badge: shape and line style tell statuses apart, not color. */
+/**
+ * Color tells the status at a glance (tokens from styles.css); the icon, the time and the screen
+ * reader label still carry it alone. A thick left edge marks every event; requests still waiting
+ * for the owner (pending) get a full outline too, because they are the ones that need action.
+ */
 const EVENT_STYLE: Record<BookingStatus, string> = {
-  pending: 'border border-foreground bg-background text-foreground',
-  confirmed: 'bg-primary text-primary-foreground',
-  completed: 'bg-secondary text-foreground',
-  cancelled: 'border border-dashed border-input bg-background text-muted-foreground line-through',
-  no_show: 'border border-dashed border-foreground bg-muted text-foreground',
+  pending:
+    'border border-l-4 border-status-pending-foreground bg-status-pending text-status-pending-foreground',
+  confirmed:
+    'border-l-4 border-l-status-confirmed-foreground bg-status-confirmed text-status-confirmed-foreground',
+  completed:
+    'border-l-4 border-l-status-completed-foreground bg-status-completed text-status-completed-foreground',
+  cancelled:
+    'border-l-4 border-dashed border-l-status-cancelled-foreground/60 bg-status-cancelled text-status-cancelled-foreground line-through',
+  no_show:
+    'border-l-4 border-dashed border-l-status-no-show-foreground/60 bg-status-no-show text-status-no-show-foreground',
 }
 
 export function eventLabel(booking: Booking): string {

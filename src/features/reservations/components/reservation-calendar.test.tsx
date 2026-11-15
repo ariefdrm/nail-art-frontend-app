@@ -214,6 +214,22 @@ describe('ReservationCalendar, month', () => {
     expect(screen.getByRole('link', { name: '+1 lagi' })).toBeInTheDocument()
   })
 
+  it('flags days that have requests waiting for confirmation and explains the colors', async () => {
+    serve([
+      at('p1', 'Siti', '10T09:00', '10T09:45'),
+      at('p2', 'Budi', '10T10:00', '10T10:45'),
+      at('c1', 'Ani', '10T11:00', '10T11:45', { status: 'confirmed' }),
+      at('c2', 'Dewi', '11T11:00', '11T11:45', { status: 'confirmed' }),
+    ])
+    await renderWithRouter(<ReservationCalendar search={MONTH} onSearchChange={vi.fn()} />)
+
+    expect(await screen.findByRole('img', { name: '2 menunggu konfirmasi' })).toBeInTheDocument()
+    // Only the day with pending requests gets the flag.
+    expect(screen.getAllByRole('img', { name: /menunggu konfirmasi/ })).toHaveLength(1)
+    const legend = screen.getByRole('list', { name: 'Keterangan status' })
+    expect(within(legend).getAllByRole('listitem')).toHaveLength(5)
+  })
+
   it('moves a month at a time', async () => {
     serve([])
     const onSearchChange = vi.fn()
