@@ -33,7 +33,7 @@ export function ArtistsAdmin({ search, onSearchChange }: ArtistsAdminProps) {
   const deactivate = useDeactivateArtistMutation()
   const [target, setTarget] = useState<Artist | null>(null)
 
-  const artists = [...(query.data ?? [])].sort((a, b) => a.name.localeCompare(b.name, 'id'))
+  const artists = (query.data ?? []).toSorted((a, b) => a.name.localeCompare(b.name, 'id'))
   const editing = artists.find((artist) => artist.id === search.id)
   const openNew = () => onSearchChange({ baru: true })
 

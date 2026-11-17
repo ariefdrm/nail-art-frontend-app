@@ -33,7 +33,7 @@ export function ServicesAdmin({ search, onSearchChange }: ServicesAdminProps) {
   const remove = useDeleteServiceMutation()
   const [deleting, setDeleting] = useState<Service | null>(null)
 
-  const services = [...(query.data ?? [])].sort((a, b) => a.name.localeCompare(b.name, 'id'))
+  const services = (query.data ?? []).toSorted((a, b) => a.name.localeCompare(b.name, 'id'))
   const editing = services.find((service) => service.id === search.id)
   const categories = [...new Set(services.map((service) => service.category))].sort()
   const openNew = () => onSearchChange({ baru: true })
