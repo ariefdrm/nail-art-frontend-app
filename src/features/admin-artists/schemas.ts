@@ -1,15 +1,8 @@
 import { z } from 'zod'
 
-import type { Artist, ArtistInput } from '@/lib/api/types'
+import { isHttpUrl } from '@/lib/links'
 
-function isHttpUrl(value: string): boolean {
-  try {
-    const protocol = new URL(value).protocol
-    return protocol === 'http:' || protocol === 'https:'
-  } catch {
-    return false
-  }
-}
+import type { Artist, ArtistInput } from '@/lib/api/types'
 
 export const artistFormSchema = z.object({
   name: z.string().trim().min(1, 'Nama wajib diisi').max(80, 'Nama maksimal 80 huruf'),

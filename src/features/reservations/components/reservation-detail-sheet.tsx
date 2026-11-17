@@ -22,7 +22,7 @@ import {
 } from '@/features/reservations/queries'
 import { errorMessage, toApiError } from '@/lib/api/errors'
 import { formatDate, formatDateShort, formatPhone, formatRupiah, formatTime } from '@/lib/format'
-import { isWhatsAppUrl } from '@/lib/links'
+import { isHttpUrl, isWhatsAppUrl } from '@/lib/links'
 
 import { NotesForm } from './notes-form'
 import { ReschedulePanel } from './reschedule-panel'
@@ -157,7 +157,7 @@ function ReservationDetail({ booking }: { booking: Booking }) {
             </dd>
             <dd>Artist: {booking.artist.name}</dd>
           </div>
-          {booking.reference_image_url ? (
+          {isHttpUrl(booking.reference_image_url) ? (
             <div>
               <dt className="text-muted-foreground">Gambar referensi</dt>
               <dd>

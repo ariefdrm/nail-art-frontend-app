@@ -1,15 +1,7 @@
 import { z } from 'zod'
 
 import { normalizePhone } from '@/lib/format'
-
-function isHttpUrl(value: string): boolean {
-  try {
-    const url = new URL(value)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
+import { isHttpUrl } from '@/lib/links'
 
 export const guestSchema = z.object({
   customer_name: z.string().trim().min(1, 'Nama wajib diisi').max(100, 'Nama maksimal 100 huruf'),

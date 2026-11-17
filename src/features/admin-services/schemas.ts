@@ -1,18 +1,11 @@
 import { z } from 'zod'
 
+import { isHttpUrl } from '@/lib/links'
+
 import type { Service, ServiceInput } from '@/lib/api/types'
 
 export const MAX_PRICE = 100_000_000
 export const DURATIONS = Array.from({ length: 32 }, (_, index) => (index + 1) * 15)
-
-function isHttpUrl(value: string): boolean {
-  try {
-    const protocol = new URL(value).protocol
-    return protocol === 'http:' || protocol === 'https:'
-  } catch {
-    return false
-  }
-}
 
 /** "Gel Polish" -> "gel_polish": the form the API stores and the catalog filters by. */
 export function toCategorySlug(input: string): string {

@@ -1,3 +1,4 @@
+import { isHttpUrl } from '@/lib/links'
 import { cn } from '@/lib/utils'
 
 import type { Service } from '@/lib/api/types'
@@ -19,10 +20,11 @@ export function ServiceImage({ service, className }: ServiceImageProps) {
         className,
       )}
     >
-      {service.image_url ? (
+      {isHttpUrl(service.image_url) ? (
         <img
           src={service.image_url}
           alt={service.name}
+          referrerPolicy="no-referrer"
           loading="lazy"
           className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
